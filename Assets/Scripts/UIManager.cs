@@ -134,7 +134,7 @@ public class UIManager : MonoBehaviour
         {
             GameObject keyIcon = Instantiate(keyIconPrefab, keyDisplayParent);
 
-/*            // Setze richtige Farbe je nach Schlüssel-Typ
+            // Setze richtige Farbe je nach Schlüssel-Typ
             Image iconImage = keyIcon.GetComponent<Image>();
             switch (key)
             {
@@ -150,7 +150,7 @@ public class UIManager : MonoBehaviour
                 case KeyType.Master:
                     iconImage.color = Color.red;  // Master-Schlüssel rot
                     break;
-            }*/
+            }
         }
 
         // Aktualisiere Schlüssel-Zähler

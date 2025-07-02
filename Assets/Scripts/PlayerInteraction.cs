@@ -7,7 +7,12 @@ public class PlayerInteraction : MonoBehaviour
     public float interactionRange = 3f;
     public LayerMask interactableLayer;
     public IInteractable interactable;
-    public Camera playerCamera;
+    private Camera playerCamera;
+
+    private void Awake()
+    {
+        playerCamera = Camera.main; // Setze die Kamera auf die Hauptkamera
+    }
 
     void Update()
     {
