@@ -1,5 +1,7 @@
-using UnityEngine;
 using System;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerInteraction : MonoBehaviour
 {
@@ -8,6 +10,7 @@ public class PlayerInteraction : MonoBehaviour
     public LayerMask interactableLayer;
     public IInteractable interactable;
     private Camera playerCamera;
+    public TextMeshProUGUI interactionText;
 
     private void Awake()
     {
@@ -36,29 +39,33 @@ public class PlayerInteraction : MonoBehaviour
             if (interactable != null && interactable.CanInteract(this))
             {
                 // UI-Prompt anzeigen
-                ShowInteractionPrompt(interactable.GetInteractionText());
+                UIManager.Instance.ShowInteractionPrompt(interactable.GetInteractionText());
                 this.interactable = interactable;
             }
         }
         else
         {
-            HideInteractionPrompt();
+            UIManager.Instance.HideInteractionPrompt();
             this.interactable = null; // Kein Interagierbares Objekt gefunden
         }
     }
-    // Füge diese Methoden in die Klasse PlayerInteraction ein
 
-    void ShowInteractionPrompt(string text)
-    {
-        // TODO: Hier UI-Code einfügen, um den Interaktions-Prompt mit dem Text anzuzeigen
-        Debug.Log("Interaktion möglich: " + text);
-    }
+    //void ShowInteractionPrompt(string text)
+    //{
+    //    if (interactionText != null)
+    //    {
+    //        interactionText.text = text;
+    //        interactionText.gameObject.SetActive(true);
+    //    }
+    //}
 
-    void HideInteractionPrompt()
-    {
-        // TODO: Hier UI-Code einfügen, um den Interaktions-Prompt auszublenden
-        Debug.Log("Interaktions-Prompt ausgeblendet");
-    }
+    //void HideInteractionPrompt()
+    //{
+    //    if (interactionText != null)
+    //    {
+    //        interactionText.gameObject.SetActive(false);
+    //    }
+    //}
 }
 
 public interface IInteractable

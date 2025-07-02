@@ -34,7 +34,7 @@ public class Door : MonoBehaviour, IInteractable
         else
         {
 //          AudioSource.PlayClipAtPoint(lockedSound, transform.position);
-            UIManager.Instance.ShowMessage($"Du brauchst einen {requiredKey}-Schlüssel!");
+            UIManager.Instance.ShowMessage($"Du brauchst einen {requiredKey}!");
         }
     }
 
@@ -52,7 +52,7 @@ public class Door : MonoBehaviour, IInteractable
     public string GetInteractionText()
     {
         if (isOpen) return "";
-        if (isLocked) return $"[E] {doorName} (Schlüssel benötigt)";
+        if (isLocked) return $"{requiredKey} (benötigt)";
         return $"[E] {doorName} öffnen";
     }
 

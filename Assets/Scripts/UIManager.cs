@@ -44,7 +44,7 @@ public class UIManager : MonoBehaviour
     void Start()
     {
         // Zu Beginn alles verstecken/auf Null setzen
-        HideInteractionText();
+ //       HideInteractionText();
         UpdateScore(0);
         UpdateKeyCount(0);
         UpdateItemCount(0);
@@ -63,7 +63,7 @@ public class UIManager : MonoBehaviour
         interactionText.gameObject.SetActive(false);  // Verstecke Text
     }
 
-    // Alternative Namen für die gleichen Funktionen:
+/*    // Alternative Namen für die gleichen Funktionen:
     public void ShowInteractionText(string text)
     {
         ShowInteractionPrompt(text);
@@ -73,6 +73,7 @@ public class UIManager : MonoBehaviour
     {
         HideInteractionPrompt();
     }
+*/
 
     // PUNKTE-SYSTEM
     public void AddScore(int points)
@@ -95,6 +96,7 @@ public class UIManager : MonoBehaviour
     // NACHRICHTEN-SYSTEM (temporäre Meldungen)
     public void ShowMessage(string message)
     {
+        
         messageText.text = message;           // Setze Nachricht
         messageText.gameObject.SetActive(true);  // Mache sichtbar
 
@@ -120,9 +122,10 @@ public class UIManager : MonoBehaviour
         messageText.gameObject.SetActive(false);  // Verstecke Nachricht
     }
 
-    // SCHLÜSSEL-ANZEIGE
+   // SCHLÜSSEL-ANZEIGE
     public void UpdateKeyDisplay(List<KeyType> keys)
     {
+        return;
         // Lösche alle alten Schlüssel-Icons
         foreach (Transform child in keyDisplayParent)
         {
@@ -138,17 +141,17 @@ public class UIManager : MonoBehaviour
             Image iconImage = keyIcon.GetComponent<Image>();
             switch (key)
             {
-                case KeyType.Bronze:
-                    iconImage.color = new Color(0.8f, 0.5f, 0.2f);  // Bronze-Farbe
+                case KeyType.BronzeSchlüssel:
+                    iconImage.color = Color.red;  // Bronze-Schlüssel rot
                     break;
-                case KeyType.Silber:
-                    iconImage.color = Color.gray;  // Silber-Farbe
+                case KeyType.SilberSchlüssel:
+                    iconImage.color = Color.gray;  // Silber-Schlüssel grau
                     break;
-                case KeyType.Gold:
-                    iconImage.color = Color.yellow;  // Gold-Farbe
+                case KeyType.GoldSchlüssel:
+                    iconImage.color = Color.yellow;  // Gold-Schlüssel gelb
                     break;
-                case KeyType.Master:
-                    iconImage.color = Color.red;  // Master-Schlüssel rot
+                case KeyType.MasterSchlüssel:
+                    iconImage.color = Color.green;  // Master-Schlüssel grün
                     break;
             }
         }
@@ -180,7 +183,7 @@ public class UIManager : MonoBehaviour
         UpdateScore(0);
         UpdateKeyCount(0);
         UpdateItemCount(0);
-        HideInteractionText();
+//        HideInteractionText();
         HideMessage();
     }
 }
