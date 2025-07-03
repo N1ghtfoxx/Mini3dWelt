@@ -51,7 +51,7 @@ public class TreasureChest : MonoBehaviour, IInteractable
 
         CollectItems();
 
-        UIManager.Instance.ShowMessage($"Truhe geöffnet! {chestItems.Count} Gegenstände gefunden!");
+        
     }
 
     private void UpdateChestVisual()
@@ -68,12 +68,17 @@ public class TreasureChest : MonoBehaviour, IInteractable
         if (inventoryManager == null) return;
 
         int totalValue = 0;
+        string collectedItems = "";
 
         foreach (ChestItem item in chestItems)
         {
             inventoryManager.AddItem(item.itemType, item.itemName, item.pointValue);
             totalValue += item.pointValue;
+            collectedItems += $"{item.itemName} ";
         }
+
+        chestItems.Clear(); // Leere die Truhe nach dem Sammeln
+        UIManager.Instance.ShowMessage($"Truhe geöffnet! {collectedItems} gefunden!");
 
         if (totalValue > 0)
         {

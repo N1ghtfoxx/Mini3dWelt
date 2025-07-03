@@ -33,14 +33,13 @@ public class InventoryManager : MonoBehaviour
             Debug.LogWarning($"{keyType} nicht im Inventar.");
         }
     }
-
-    /*    // Anzahl eines bestimmten Schlüssel-Typs
-        public int GetKeyCount(KeyType keyType)
-        {
-            return keys.Count(key => key == keyType);
-        }
-    */
-
+ 
+    // Anzahl eines bestimmten Schlüssel-Typs
+    public int GetKeyCount(KeyType keyType)
+    {
+        return keys.Count(key => key == keyType);
+    }
+    
     // Gesamte Schlüssel-Anzahl
     public int GetTotalKeyCount()
     {

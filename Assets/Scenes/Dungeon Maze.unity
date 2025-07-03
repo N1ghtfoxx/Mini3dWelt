@@ -13984,7 +13984,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isOpened: 0
-  chestItems: []
+  chestItems:
+  - itemType: 0
+    itemName: Edelstein
+    pointValue: 20
+  - itemType: 1
+    itemName: Schwert
+    pointValue: 1
   closedChestModel: {fileID: 898109293}
   openedChestModel: {fileID: 1353389607}
 --- !u!65 &1622024480

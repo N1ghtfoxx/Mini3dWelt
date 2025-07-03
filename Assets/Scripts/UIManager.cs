@@ -43,12 +43,13 @@ public class UIManager : MonoBehaviour
 
     void Start()
     {
-        // Zu Beginn alles verstecken/auf Null setzen
- //       HideInteractionText();
+    // Zu Beginn alles verstecken/auf Null setzen
+        // HideInteractionText();
         UpdateScore(0);
         UpdateKeyCount(0);
         UpdateItemCount(0);
         HideMessage();
+        UpdateKeyCount(888); // Sollte "Schlüssel: 888" anzeigen
     }
 
     // INTERAKTIONS-TEXT (zeigt "[E] Schlüssel aufheben")
@@ -129,63 +130,67 @@ public class UIManager : MonoBehaviour
         interactionText.gameObject.SetActive(false);  // Verstecke Interaktionstext
     }
 
-   // SCHLÜSSEL-ANZEIGE
+    // SCHLÜSSEL-ANZEIGE
     public void UpdateKeyDisplay(List<KeyType> keys)
     {
-        
-        // Lösche alle alten Schlüssel-Icons
+        Debug.Log($"=== UpdateKeyDisplay aufgerufen ===");
+        Debug.Log($"Anzahl Schlüssel: {keys.Count}");
+
+        // Lösche alle alten Schlüssel-Icons (falls vorhanden)
         foreach (Transform child in keyDisplayParent)
         {
             Destroy(child.gameObject);
         }
 
-        /*       // Erstelle neue Icons für jeden Schlüssel
-               foreach (KeyType key in keys)
-               {
-                   GameObject keyIcon = Instantiate(keyIconPrefab, keyDisplayParent);
-
-                   // Setze richtige Farbe je nach Schlüssel-Typ
-                   Image iconImage = keyIcon.GetComponent<Image>();
-                   switch (key)
-                   {
-                       case KeyType.BronzeSchlüssel:
-                           iconImage.color = Color.red;  // Bronze-Schlüssel rot
-                           break;
-                       case KeyType.SilberSchlüssel:
-                           iconImage.color = Color.gray;  // Silber-Schlüssel grau
-                           break;
-                       case KeyType.GoldSchlüssel:
-                           iconImage.color = Color.yellow;  // Gold-Schlüssel gelb
-                           break;
-                       case KeyType.MasterSchlüssel:
-                           iconImage.color = Color.green;  // Master-Schlüssel grün
-                           break;
-                   }
-
-               }
-        */
-
-        // Aktualisiere Schlüssel-Zähler
+        // Aktualisiere den Text-Zähler
         UpdateKeyCount(keys.Count);
-    }
 
+        // Optional: Debug-Ausgabe der vorhandenen Schlüssel
+        if (keys.Count > 0)
+        {
+            string keyNames = "";
+            foreach (KeyType key in keys)
+            {
+                keyNames += key.ToString() + " ";
+            }
+            Debug.Log($"Vorhandene Schlüssel: {keyNames}");
+        }
+        else
+        {
+            Debug.Log("Keine Schlüssel mehr vorhanden");
+        }
+    }
+    
+
+    /*   public void AddKeyIcon(KeyType keyType)
+       {
+           // Erstelle ein neues Schlüssel-Icon
+           GameObject keyIcon = Instantiate(keyIconPrefab, keyDisplayParent);
+           keyIcon.name = keyType.ToString();  // Setze den Namen des Icons
+           // Optional: Hier könntest du das Icon anpassen (z.B. Sprite setzen)
+           // keyIcon.GetComponent<Image>().sprite = ...;
+       }
+    */
+
+    // SCHLÜSSEL-ZÄHLER
     public void UpdateKeyCount(int count)
     {
-        keyCountText.text = $"Schlüssel: {count}";  // "Schlüssel: 3"
+        keyCountText.text = $"Schlüssel: {count}";  
     }
 
     // GEGENSTÄNDE-ANZEIGE  
     public void UpdateItemCount(int count)
     {
-        itemCountText.text = $"Gegenstände: {count}";  // "Gegenstände: 7"
+        itemCountText.text = $"Gegenstände: {count}";  
     }
 
-    // HILFSFUNKTIONEN
+/*    // HILFSFUNKTIONEN
     public void ShowGameOverScreen()
     {
         ShowMessage("Glückwunsch! Du hast alle Gegenstände gefunden!");
         // Hier könntest du ein Game Over Menü anzeigen
     }
+*/
 
     public void ResetUI()
     {

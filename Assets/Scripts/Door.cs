@@ -27,18 +27,11 @@ public class Door : MonoBehaviour, IInteractable
         }
         else if (inventory != null && inventory.HasKey(requiredKey))
         {
-           if(consumeKey)
-            {
-                inventory.UseKey(requiredKey);
-                UIManager.Instance.ShowMessage($"{doorName} entsperrt! ({requiredKey} verbraucht)");
-            }
-            else
-            {
-                UIManager.Instance.ShowMessage($"{doorName} entsperrt!");
-            }
-
-           isLocked = false;
-           OpenDoor();
+          
+            inventory.UseKey(requiredKey);
+            UIManager.Instance.ShowMessage($"{doorName} entsperrt! ({requiredKey} verbraucht)");                     
+            isLocked = false;
+            OpenDoor();
         }
         else
         {
@@ -52,7 +45,7 @@ public class Door : MonoBehaviour, IInteractable
         if (!isOpen)
         {
             hingeTransform.localRotation = Quaternion.Euler(0, 90, 0); // Beispiel: Tür um 90 Grad öffnen
-            /*         doorAnimator.SetBool("isOpen", true);
+            /*         
                        AudioSource.PlayClipAtPoint(openSound, transform.position);
             */
             isOpen = true;
