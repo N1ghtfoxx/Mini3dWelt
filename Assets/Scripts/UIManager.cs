@@ -100,6 +100,8 @@ public class UIManager : MonoBehaviour
         messageText.text = message;           // Setze Nachricht
         messageText.gameObject.SetActive(true);  // Mache sichtbar
 
+        HideInteractionText();  // Verstecke Interaktionstext
+
         // Stoppe alte Nachricht falls eine läuft
         if (messageCoroutine != null)
         {
@@ -122,39 +124,46 @@ public class UIManager : MonoBehaviour
         messageText.gameObject.SetActive(false);  // Verstecke Nachricht
     }
 
+    public void HideInteractionText()
+    { 
+        interactionText.gameObject.SetActive(false);  // Verstecke Interaktionstext
+    }
+
    // SCHLÜSSEL-ANZEIGE
     public void UpdateKeyDisplay(List<KeyType> keys)
     {
-        return;
+        
         // Lösche alle alten Schlüssel-Icons
         foreach (Transform child in keyDisplayParent)
         {
             Destroy(child.gameObject);
         }
 
-        // Erstelle neue Icons für jeden Schlüssel
-        foreach (KeyType key in keys)
-        {
-            GameObject keyIcon = Instantiate(keyIconPrefab, keyDisplayParent);
+        /*       // Erstelle neue Icons für jeden Schlüssel
+               foreach (KeyType key in keys)
+               {
+                   GameObject keyIcon = Instantiate(keyIconPrefab, keyDisplayParent);
 
-            // Setze richtige Farbe je nach Schlüssel-Typ
-            Image iconImage = keyIcon.GetComponent<Image>();
-            switch (key)
-            {
-                case KeyType.BronzeSchlüssel:
-                    iconImage.color = Color.red;  // Bronze-Schlüssel rot
-                    break;
-                case KeyType.SilberSchlüssel:
-                    iconImage.color = Color.gray;  // Silber-Schlüssel grau
-                    break;
-                case KeyType.GoldSchlüssel:
-                    iconImage.color = Color.yellow;  // Gold-Schlüssel gelb
-                    break;
-                case KeyType.MasterSchlüssel:
-                    iconImage.color = Color.green;  // Master-Schlüssel grün
-                    break;
-            }
-        }
+                   // Setze richtige Farbe je nach Schlüssel-Typ
+                   Image iconImage = keyIcon.GetComponent<Image>();
+                   switch (key)
+                   {
+                       case KeyType.BronzeSchlüssel:
+                           iconImage.color = Color.red;  // Bronze-Schlüssel rot
+                           break;
+                       case KeyType.SilberSchlüssel:
+                           iconImage.color = Color.gray;  // Silber-Schlüssel grau
+                           break;
+                       case KeyType.GoldSchlüssel:
+                           iconImage.color = Color.yellow;  // Gold-Schlüssel gelb
+                           break;
+                       case KeyType.MasterSchlüssel:
+                           iconImage.color = Color.green;  // Master-Schlüssel grün
+                           break;
+                   }
+
+               }
+        */
 
         // Aktualisiere Schlüssel-Zähler
         UpdateKeyCount(keys.Count);

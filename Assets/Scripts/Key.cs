@@ -22,7 +22,7 @@ public class Key : MonoBehaviour, IInteractable
         }
     }
 
-    public string GetInteractionText()
+    public string GetInteractionText(PlayerInteraction player)
     {
         return $"[E] {keyType.ToString()} aufheben";
     }

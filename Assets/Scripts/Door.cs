@@ -6,11 +6,13 @@ public class Door : MonoBehaviour, IInteractable
     public KeyType requiredKey;
     public string doorName = "Kerkertür";
     public bool isLocked = true;
+    public bool consumeKey = false;
+    public Transform hingeTransform; // Optional: Transform für Tür-Animation oder Positionierung
 
-/*    [Header("Animation")]
-    public Animator doorAnimator;
-    public AudioClip openSound;
-    public AudioClip lockedSound;*/
+    /*    [Header("Animation")]
+        public Animator doorAnimator;
+        public AudioClip openSound;
+        public AudioClip lockedSound;*/
 
     private bool isOpen = false;
 
@@ -18,23 +20,30 @@ public class Door : MonoBehaviour, IInteractable
     {
         InventoryManager inventory = player.GetComponent<InventoryManager>();
 
-        if (!isLocked || !isOpen)
+        if (!isLocked)
         {
-            OpenDoor();
-        }
-        else if (inventory.HasKey(requiredKey))
-        {
-            // Schlüssel verbrauchen (optional)
-            // inventory.UseKey(requiredKey);
-
-            isLocked = false;
             OpenDoor();
             UIManager.Instance.ShowMessage($"{doorName} geöffnet!");
         }
+        else if (inventory != null && inventory.HasKey(requiredKey))
+        {
+           if(consumeKey)
+            {
+                inventory.UseKey(requiredKey);
+                UIManager.Instance.ShowMessage($"{doorName} entsperrt! ({requiredKey} verbraucht)");
+            }
+            else
+            {
+                UIManager.Instance.ShowMessage($"{doorName} entsperrt!");
+            }
+
+           isLocked = false;
+           OpenDoor();
+        }
         else
         {
-//          AudioSource.PlayClipAtPoint(lockedSound, transform.position);
-            UIManager.Instance.ShowMessage($"Du brauchst einen {requiredKey}!");
+            UIManager.Instance.ShowMessage($"{doorName} ist verschlossen! Du brauchst einen ({requiredKey}!)");
+            /*            AudioSource.PlayClipAtPoint(lockedSound, transform.position);*/
         }
     }
 
@@ -42,17 +51,19 @@ public class Door : MonoBehaviour, IInteractable
     {
         if (!isOpen)
         {
- /*         doorAnimator.SetBool("isOpen", true);
-            AudioSource.PlayClipAtPoint(openSound, transform.position);
- */
+            hingeTransform.localRotation = Quaternion.Euler(0, 90, 0); // Beispiel: Tür um 90 Grad öffnen
+            /*         doorAnimator.SetBool("isOpen", true);
+                       AudioSource.PlayClipAtPoint(openSound, transform.position);
+            */
             isOpen = true;
+            Debug.Log($"{doorName} wurde geöffnet.");
         }
     }
 
-    public string GetInteractionText()
+    public string GetInteractionText(PlayerInteraction player)
     {
         if (isOpen) return "";
-        if (isLocked) return $"{requiredKey} (benötigt)";
+        if (isLocked && !player.GetComponent<InventoryManager>().HasKey(requiredKey)) return $"{requiredKey} (benötigt)";
         return $"[E] {doorName} öffnen";
     }
 

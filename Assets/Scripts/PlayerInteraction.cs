@@ -39,15 +39,14 @@ public class PlayerInteraction : MonoBehaviour
             if (interactable != null && interactable.CanInteract(this))
             {
                 // UI-Prompt anzeigen
-                UIManager.Instance.ShowInteractionPrompt(interactable.GetInteractionText());
+                UIManager.Instance.ShowInteractionPrompt(interactable.GetInteractionText(this));
                 this.interactable = interactable;
+                return;
             }
         }
-        else
-        {
+
             UIManager.Instance.HideInteractionPrompt();
-            this.interactable = null; // Kein Interagierbares Objekt gefunden
-        }
+            this.interactable = null; // Kein Interagierbares Objekt gefunden    
     }
 
     //void ShowInteractionPrompt(string text)
@@ -71,6 +70,6 @@ public class PlayerInteraction : MonoBehaviour
 public interface IInteractable
 {
     void Interact(PlayerInteraction player);
-    string GetInteractionText();
+    string GetInteractionText(PlayerInteraction player);
     bool CanInteract(PlayerInteraction player);
 }
