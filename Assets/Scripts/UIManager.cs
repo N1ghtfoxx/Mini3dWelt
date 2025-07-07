@@ -49,7 +49,7 @@ public class UIManager : MonoBehaviour
         UpdateKeyCount(0);
         UpdateItemCount(0);
         HideMessage();
-        UpdateKeyCount(888); // Sollte "Schlüssel: 888" anzeigen
+        UpdateKeyCount(0); // Sollte "Schlüssel: 0" anzeigen
     }
 
     // INTERAKTIONS-TEXT (zeigt "[E] Schlüssel aufheben")
