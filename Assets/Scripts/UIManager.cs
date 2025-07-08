@@ -16,9 +16,15 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI keyCountText;         // Text: "Schlüssel: 3"
     public TextMeshProUGUI itemCountText;        // Text: "Gegenstände: 7"
 
-    [Header("Schlüssel Anzeige")]
+ /*   [Header("Alte Schlüssel Anzeige - kann entfernt werden")]
     public Transform keyDisplayParent;           // Wo die Schlüssel-Icons hingehören
     public GameObject keyIconPrefab;             // Vorlage für Schlüssel-Symbol
+ */
+
+    [Header("Schlüssel Bilder - NEU!")]
+    public GameObject silverKeyImage;            // Bild für Silber-Schlüssel  
+    public GameObject goldKeyImage;              // Bild für Gold-Schlüssel
+    public GameObject masterKeyImage;            // Bild für Master-Schlüssel
 
     [Header("Einstellungen")]
     public float messageDuration = 3f;           // Wie lange Nachrichten angezeigt werden (3 Sekunden)
@@ -43,13 +49,96 @@ public class UIManager : MonoBehaviour
 
     void Start()
     {
-    // Zu Beginn alles verstecken/auf Null setzen
-        // HideInteractionText();
-        UpdateScore(0);
-        UpdateKeyCount(0);
-        UpdateItemCount(0);
-        HideMessage();
-        UpdateKeyCount(0); // Sollte "Schlüssel: 0" anzeigen
+        ResetUI();
+    }
+
+    // NEU: Verstecke alle Schlüssel-Bilder
+    private void HideAllKeyImages()
+    {
+        // Methode 2: Über einzelne Referenzen
+        if (silverKeyImage != null) silverKeyImage.SetActive(false);
+        if (goldKeyImage != null) goldKeyImage.SetActive(false);
+        if (masterKeyImage != null) masterKeyImage.SetActive(false);
+    }
+
+    // NEU: Hauptfunktion - Zeige/Verstecke Schlüssel-Bilder basierend auf Inventar
+    public void UpdateKeyDisplay(List<KeyType> keys)
+    {
+        Debug.Log($"=== UpdateKeyDisplay aufgerufen ===");
+        Debug.Log($"Anzahl Schlüssel: {keys.Count}");
+
+        // Erst alle Bilder verstecken
+        HideAllKeyImages();
+
+        // Dann nur die Bilder für vorhandene Schlüssel anzeigen
+        foreach (KeyType key in keys)
+        {
+            ShowKeyImage(key);
+        }
+    }
+
+    // NEU: Zeige das Bild für einen bestimmten Schlüssel-Typ
+    private void ShowKeyImage(KeyType keyType)
+    {
+        switch (keyType)
+        {
+
+            case KeyType.SilberSchlüssel:
+                if (silverKeyImage != null)
+                {
+                    silverKeyImage.SetActive(true);
+                    Debug.Log("Silber-Schlüssel Bild angezeigt");
+                }
+                break;
+
+            case KeyType.GoldSchlüssel:
+                if (goldKeyImage != null)
+                {
+                    goldKeyImage.SetActive(true);
+                    Debug.Log("Gold-Schlüssel Bild angezeigt");
+                }
+                break;
+
+            case KeyType.MasterSchlüssel:
+                if (masterKeyImage != null)
+                {
+                    masterKeyImage.SetActive(true);
+                    Debug.Log("Master-Schlüssel Bild angezeigt");
+                }
+                break;
+        }
+    }
+
+    // NEU: Verstecke das Bild für einen bestimmten Schlüssel-Typ
+    private void HideKeyImage(KeyType keyType)
+    {
+        switch (keyType)
+        {
+
+            case KeyType.SilberSchlüssel:
+                if (silverKeyImage != null)
+                {
+                    silverKeyImage.SetActive(false);
+                    Debug.Log("Silber-Schlüssel Bild versteckt");
+                }
+                break;
+
+            case KeyType.GoldSchlüssel:
+                if (goldKeyImage != null)
+                {
+                    goldKeyImage.SetActive(false);
+                    Debug.Log("Gold-Schlüssel Bild versteckt");
+                }
+                break;
+
+            case KeyType.MasterSchlüssel:
+                if (masterKeyImage != null)
+                {
+                    masterKeyImage.SetActive(false);
+                    Debug.Log("Master-Schlüssel Bild versteckt");
+                }
+                break;
+        }
     }
 
     // INTERAKTIONS-TEXT (zeigt "[E] Schlüssel aufheben")
@@ -86,7 +175,7 @@ public class UIManager : MonoBehaviour
     public void UpdateScore(int newScore)
     {
         currentScore = newScore;
-        scoreText.text = $"Punkte: {currentScore}";  // "Punkte: 150"
+        scoreText.text = currentScore.ToString();  // "Punkte: 150"
     }
 
     public int GetCurrentScore()
@@ -130,7 +219,7 @@ public class UIManager : MonoBehaviour
         interactionText.gameObject.SetActive(false);  // Verstecke Interaktionstext
     }
 
-    // SCHLÜSSEL-ANZEIGE
+/*    // SCHLÜSSEL-ANZEIGE
     public void UpdateKeyDisplay(List<KeyType> keys)
     {
         Debug.Log($"=== UpdateKeyDisplay aufgerufen ===");
@@ -160,7 +249,7 @@ public class UIManager : MonoBehaviour
             Debug.Log("Keine Schlüssel mehr vorhanden");
         }
     }
-    
+*/    
 
     /*   public void AddKeyIcon(KeyType keyType)
        {
@@ -172,17 +261,19 @@ public class UIManager : MonoBehaviour
        }
     */
 
-    // SCHLÜSSEL-ZÄHLER
+/*    // SCHLÜSSEL-ZÄHLER
     public void UpdateKeyCount(int count)
     {
         keyCountText.text = $"Schlüssel: {count}";  
     }
+*/
 
     // GEGENSTÄNDE-ANZEIGE  
     public void UpdateItemCount(int count)
     {
         itemCountText.text = $"Gegenstände: {count}";  
     }
+
 
 /*    // HILFSFUNKTIONEN
     public void ShowGameOverScreen()
@@ -195,9 +286,11 @@ public class UIManager : MonoBehaviour
     public void ResetUI()
     {
         UpdateScore(0);
-        UpdateKeyCount(0);
+//        UpdateKeyCount(0);
         UpdateItemCount(0);
 //        HideInteractionText();
         HideMessage();
+        HideAllKeyImages();  // NEU: Alle Schlüssel-Bilder verstecken
+
     }
 }
