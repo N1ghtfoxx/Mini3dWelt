@@ -4,7 +4,7 @@ public class Key : MonoBehaviour, IInteractable
 {
     [Header("Key Settings")]
     public KeyType keyType;
-    public AudioClip pickupSound;
+//    public AudioClip pickupSound;
 
     public void Interact(PlayerInteraction player)
     {

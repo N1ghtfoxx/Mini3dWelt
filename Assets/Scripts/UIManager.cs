@@ -16,22 +16,33 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI keyCountText;         // Text: "Schlüssel: 3"
     public TextMeshProUGUI itemCountText;        // Text: "Gegenstände: 7"
 
- /*   [Header("Alte Schlüssel Anzeige - kann entfernt werden")]
-    public Transform keyDisplayParent;           // Wo die Schlüssel-Icons hingehören
-    public GameObject keyIconPrefab;             // Vorlage für Schlüssel-Symbol
- */
 
-    [Header("Schlüssel Bilder - NEU!")]
-    public GameObject silverKeyImage;            // Bild für Silber-Schlüssel  
-    public GameObject goldKeyImage;              // Bild für Gold-Schlüssel
-    public GameObject masterKeyImage;            // Bild für Master-Schlüssel
+    [Header("Schlüssel Bilder Upper Panel")]
+    public GameObject silverKeyUpperObject;            // Bild für Silber-Schlüssel  
+    public GameObject goldKeyUpperObject;              // Bild für Gold-Schlüssel
+    public GameObject masterKeyUpperObject;            // Bild für Master-Schlüssel
+
+/*
+    [Header("Bilder Inventory Panel")]
+    public GameObject silverKeyInventory;            // Bild für Silber-Schlüssel  
+    public GameObject goldKeyInventory;              // Bild für Gold-Schlüssel
+    public GameObject masterKeyInventory;            // Bild für Master-Schlüssel
+    public GameObject gemsInventory;
+    public GameObject foodInventory;
+    public GameObject weaponsInventory;
+*/
 
     [Header("Einstellungen")]
     public float messageDuration = 3f;           // Wie lange Nachrichten angezeigt werden (3 Sekunden)
 
+    public GameObject Inventory;
+    public GameObject ItemPrefab;  // Prefab für Items im Inventar
+    public GameObject FoodInventoryParent;  // Parent-Objekt für Essen im Inventar
+
     // Private Variablen
     private int currentScore = 0;                // Aktuelle Punkte
     private Coroutine messageCoroutine;          // Für zeitgesteuerte Nachrichten
+
 
     void Awake()
     {
@@ -40,6 +51,12 @@ public class UIManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);  // Bleibt beim Szenen-Wechsel erhalten
+ /*           silverKeyInventory.SetActive(false);  // Verstecke Silber-Schlüssel Bild
+            goldKeyInventory.SetActive(false);  // Verstecke Silber-Schlüssel Bild
+            masterKeyInventory.SetActive(false);  // Verstecke Silber-Schlüssel Bild
+            foodInventory.SetActive(false);  // Verstecke Food Bild
+            weaponsInventory.SetActive(false);  // Verstecke Weapons Bild
+ */
         }
         else
         {
@@ -56,12 +73,29 @@ public class UIManager : MonoBehaviour
     private void HideAllKeyImages()
     {
         // Methode 2: Über einzelne Referenzen
-        if (silverKeyImage != null) silverKeyImage.SetActive(false);
-        if (goldKeyImage != null) goldKeyImage.SetActive(false);
-        if (masterKeyImage != null) masterKeyImage.SetActive(false);
+        if (silverKeyUpperObject != null) silverKeyUpperObject.SetActive(false);
+        if (goldKeyUpperObject != null) goldKeyUpperObject.SetActive(false);
+        if (masterKeyUpperObject != null) masterKeyUpperObject.SetActive(false);
     }
 
-    // NEU: Hauptfunktion - Zeige/Verstecke Schlüssel-Bilder basierend auf Inventar
+    private void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.I))
+        {
+            // Toggle Inventory Sichtbarkeit
+            if (Inventory != null)
+            {
+                Inventory.SetActive(!Inventory.activeSelf);
+                Debug.Log($"Inventory Sichtbarkeit: {Inventory.activeSelf}");
+            }
+            else
+            {
+                Debug.LogWarning("Inventory GameObject nicht zugewiesen!");
+            }
+        }
+    }
+
+    // Hauptfunktion - Zeige/Verstecke Schlüssel-Bilder basierend auf Inventar
     public void UpdateKeyDisplay(List<KeyType> keys)
     {
         Debug.Log($"=== UpdateKeyDisplay aufgerufen ===");
@@ -77,71 +111,88 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    // NEU: Zeige das Bild für einen bestimmten Schlüssel-Typ
+    public void UpdateFoodDisplay(List<ItemType> food)
+    {
+        // 1. Alle bisherigen Food-Objekte im Parent löschen
+        foreach (Transform child in FoodInventoryParent.transform)
+        {
+            Destroy(child.gameObject);
+        }
+
+        // 2. Für jedes Food-Item ein neues Prefab instanziieren
+        foreach (var item in food)
+        {
+            GameObject newItem = Instantiate(ItemPrefab, FoodInventoryParent.transform);
+            // Optional: Passe das Aussehen/Text des Prefabs an, z.B. Name oder Icon
+            // Beispiel: newItem.GetComponentInChildren<TextMeshProUGUI>().text = item.ToString();
+        }
+    }
+
+    // Zeige das Bild für einen bestimmten Schlüssel-Typ
     private void ShowKeyImage(KeyType keyType)
     {
         switch (keyType)
         {
 
             case KeyType.SilberSchlüssel:
-                if (silverKeyImage != null)
+                if (silverKeyUpperObject != null)
                 {
-                    silverKeyImage.SetActive(true);
+                    silverKeyUpperObject.SetActive(true);
                     Debug.Log("Silber-Schlüssel Bild angezeigt");
                 }
                 break;
 
             case KeyType.GoldSchlüssel:
-                if (goldKeyImage != null)
+                if (goldKeyUpperObject != null)
                 {
-                    goldKeyImage.SetActive(true);
+                    goldKeyUpperObject.SetActive(true);
                     Debug.Log("Gold-Schlüssel Bild angezeigt");
                 }
                 break;
 
             case KeyType.MasterSchlüssel:
-                if (masterKeyImage != null)
+                if (masterKeyUpperObject != null)
                 {
-                    masterKeyImage.SetActive(true);
+                    masterKeyUpperObject.SetActive(true);
                     Debug.Log("Master-Schlüssel Bild angezeigt");
                 }
                 break;
         }
     }
 
-    // NEU: Verstecke das Bild für einen bestimmten Schlüssel-Typ
+    // Verstecke das Bild für einen bestimmten Schlüssel-Typ
     private void HideKeyImage(KeyType keyType)
     {
         switch (keyType)
         {
 
             case KeyType.SilberSchlüssel:
-                if (silverKeyImage != null)
+                if (silverKeyUpperObject != null)
                 {
-                    silverKeyImage.SetActive(false);
+                    silverKeyUpperObject.SetActive(false);
                     Debug.Log("Silber-Schlüssel Bild versteckt");
                 }
                 break;
 
             case KeyType.GoldSchlüssel:
-                if (goldKeyImage != null)
+                if (goldKeyUpperObject != null)
                 {
-                    goldKeyImage.SetActive(false);
+                    goldKeyUpperObject.SetActive(false);
                     Debug.Log("Gold-Schlüssel Bild versteckt");
                 }
                 break;
 
             case KeyType.MasterSchlüssel:
-                if (masterKeyImage != null)
+                if (masterKeyUpperObject != null)
                 {
-                    masterKeyImage.SetActive(false);
+                    masterKeyUpperObject.SetActive(false);
                     Debug.Log("Master-Schlüssel Bild versteckt");
                 }
                 break;
         }
     }
 
-    // INTERAKTIONS-TEXT (zeigt "[E] Schlüssel aufheben")
+    // INTERAKTIONS-TEXT (zeigt "[E]...")
     public void ShowInteractionPrompt(string text)
     {
         interactionText.text = text;           // Setze den Text
@@ -152,18 +203,6 @@ public class UIManager : MonoBehaviour
     {
         interactionText.gameObject.SetActive(false);  // Verstecke Text
     }
-
-/*    // Alternative Namen für die gleichen Funktionen:
-    public void ShowInteractionText(string text)
-    {
-        ShowInteractionPrompt(text);
-    }
-
-    public void HideInteractionText()
-    {
-        HideInteractionPrompt();
-    }
-*/
 
     // PUNKTE-SYSTEM
     public void AddScore(int points)
@@ -219,69 +258,11 @@ public class UIManager : MonoBehaviour
         interactionText.gameObject.SetActive(false);  // Verstecke Interaktionstext
     }
 
-/*    // SCHLÜSSEL-ANZEIGE
-    public void UpdateKeyDisplay(List<KeyType> keys)
-    {
-        Debug.Log($"=== UpdateKeyDisplay aufgerufen ===");
-        Debug.Log($"Anzahl Schlüssel: {keys.Count}");
-
-        // Lösche alle alten Schlüssel-Icons (falls vorhanden)
-        foreach (Transform child in keyDisplayParent)
-        {
-            Destroy(child.gameObject);
-        }
-
-        // Aktualisiere den Text-Zähler
-        UpdateKeyCount(keys.Count);
-
-        // Optional: Debug-Ausgabe der vorhandenen Schlüssel
-        if (keys.Count > 0)
-        {
-            string keyNames = "";
-            foreach (KeyType key in keys)
-            {
-                keyNames += key.ToString() + " ";
-            }
-            Debug.Log($"Vorhandene Schlüssel: {keyNames}");
-        }
-        else
-        {
-            Debug.Log("Keine Schlüssel mehr vorhanden");
-        }
-    }
-*/    
-
-    /*   public void AddKeyIcon(KeyType keyType)
-       {
-           // Erstelle ein neues Schlüssel-Icon
-           GameObject keyIcon = Instantiate(keyIconPrefab, keyDisplayParent);
-           keyIcon.name = keyType.ToString();  // Setze den Namen des Icons
-           // Optional: Hier könntest du das Icon anpassen (z.B. Sprite setzen)
-           // keyIcon.GetComponent<Image>().sprite = ...;
-       }
-    */
-
-/*    // SCHLÜSSEL-ZÄHLER
-    public void UpdateKeyCount(int count)
-    {
-        keyCountText.text = $"Schlüssel: {count}";  
-    }
-*/
-
     // GEGENSTÄNDE-ANZEIGE  
     public void UpdateItemCount(int count)
     {
         itemCountText.text = $"Gegenstände: {count}";  
     }
-
-
-/*    // HILFSFUNKTIONEN
-    public void ShowGameOverScreen()
-    {
-        ShowMessage("Glückwunsch! Du hast alle Gegenstände gefunden!");
-        // Hier könntest du ein Game Over Menü anzeigen
-    }
-*/
 
     public void ResetUI()
     {

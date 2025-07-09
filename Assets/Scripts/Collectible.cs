@@ -50,7 +50,7 @@ public enum ItemType
 {
     Gem,      // Edelsteine
     Weapon,   // Waffen
-    Treasure, // Schätze
-    Artifact  // Besondere Gegenstände
+    Artifact,  // Besondere Gegenstände
+    Food,     // Nahrung
 }
 

@@ -6,6 +6,7 @@ public class InventoryManager : MonoBehaviour
 {
     [Header("Inventory")]
     public List<KeyType> keys = new List<KeyType>();
+    public List<ItemType> food = new List<ItemType>(); // Hier können verschiedene Nahrungsmittel-Typen gespeichert werden
     public List<CollectibleData> items = new List<CollectibleData>();
 
     public void AddKey(KeyType keyType)
@@ -15,10 +16,23 @@ public class InventoryManager : MonoBehaviour
         Debug.Log($"{keyType} hinzugefügt. Aktuelle Schlüssel: {keys.Count}");
     }
 
+    public void AddFood()
+    {  
+        food.Add(ItemType.Food);
+        UIManager.Instance.UpdateFoodDisplay(food);
+        Debug.Log("Essen zum Inventar hinzugefügt.");
+    }
+
     public bool HasKey(KeyType keyType)
     {
         return keys.Contains(keyType);
     }
+
+    public bool HasFood()
+    {
+        return food.Count > 0;
+    }
+
 
     public void UseKey(KeyType keyType)
     {
@@ -33,7 +47,22 @@ public class InventoryManager : MonoBehaviour
             Debug.LogWarning($"{keyType} nicht im Inventar.");
         }
     }
- 
+
+    public void UseFood()
+    {
+        if (HasFood())
+        {
+            /// TODO: Taste für Essen verwenden
+            food.Remove(ItemType.Food); // Entfernt ein beliebiges Nahrungsmittel
+            UIManager.Instance.UpdateFoodDisplay(food);
+            Debug.Log("Essen verwendet.");
+        }
+        else
+        {
+            Debug.LogWarning("Kein Essen im Inventar.");
+        }
+    }
+
     // Anzahl eines bestimmten Schlüssel-Typs
     public int GetKeyCount(KeyType keyType)
     {

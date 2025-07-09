@@ -27,7 +27,6 @@ public class PlayerInteraction : MonoBehaviour
         }
     }
 
-
     void CheckForInteractable()
     {
         Ray ray = playerCamera.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2));
@@ -48,23 +47,6 @@ public class PlayerInteraction : MonoBehaviour
             UIManager.Instance.HideInteractionPrompt();
             this.interactable = null; // Kein Interagierbares Objekt gefunden    
     }
-
-    //void ShowInteractionPrompt(string text)
-    //{
-    //    if (interactionText != null)
-    //    {
-    //        interactionText.text = text;
-    //        interactionText.gameObject.SetActive(true);
-    //    }
-    //}
-
-    //void HideInteractionPrompt()
-    //{
-    //    if (interactionText != null)
-    //    {
-    //        interactionText.gameObject.SetActive(false);
-    //    }
-    //}
 }
 
 public interface IInteractable
