@@ -8,9 +8,11 @@ public class Collectible : MonoBehaviour
     public int pointValue = 10;
     public Sprite itemIcon;
 
-    [Header("Effects")]
-    public ParticleSystem pickupEffect;
-    public AudioClip pickupSound;
+    /*
+        [Header("Effects")]
+        public ParticleSystem pickupEffect;
+        public AudioClip pickupSound;
+    */
 
     public void Interact(PlayerInteraction player)
     {
@@ -50,7 +52,6 @@ public enum ItemType
 {
     Gem,      // Edelsteine
     Weapon,   // Waffen
-    Artifact,  // Besondere Gegenstände
     Food,     // Nahrung
 }
 

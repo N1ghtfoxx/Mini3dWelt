@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Linq;
 using UnityEngine;
 
 public class Door : MonoBehaviour, IInteractable
@@ -15,17 +17,13 @@ public class Door : MonoBehaviour, IInteractable
         public AudioClip lockedSound;*/
 
     private bool isOpen = false;
+    private bool gameLoaded = false;
 
     public void Interact(PlayerInteraction player)
     {
         InventoryManager inventory = player.GetComponent<InventoryManager>();
 
-        if (!isLocked)
-        {
-            OpenDoor();
-            UIManager.Instance.ShowMessage($"{doorName} geöffnet!");
-        }
-        else if (inventory != null && inventory.HasKey(requiredKey))
+        if (inventory != null && inventory.HasKey(requiredKey))
         {
           
             inventory.UseKey(requiredKey);
@@ -50,18 +48,38 @@ public class Door : MonoBehaviour, IInteractable
             */
             isOpen = true;
             Debug.Log($"{doorName} wurde geöffnet.");
+
+            SaveSystem.Instance.MarkDoorAsOpened(gameObject.name);
         }
     }
 
     public string GetInteractionText(PlayerInteraction player)
     {
         if (isOpen) return "";
-        if (isLocked && !player.GetComponent<InventoryManager>().HasKey(requiredKey)) return $"{requiredKey} (benötigt)";
+        if (isLocked && !player.GetComponent<InventoryManager>().HasKey(requiredKey)) return $"{requiredKey} (zum Öffnen benötigt)";
         return $"[E] {doorName} öffnen";
     }
 
     public bool CanInteract(PlayerInteraction player)
     {
         return !isOpen;
+    }
+
+    public IEnumerator onSaveGameLoaded()
+    {
+        while(SaveSystem.Instance == null)
+            yield return null;
+        gameLoaded = true;
+        isOpen = SaveSystem.Instance.currentSaveData.openedDoor.FirstOrDefault(d => d.doorName == gameObject.name).isOpened;
+
+        if (isOpen)
+        {
+            hingeTransform.localRotation = Quaternion.Euler(0, 90, 0);
+        }   
+    }
+
+    public void Start()
+    {
+        StartCoroutine(onSaveGameLoaded());
     }
 }

@@ -13,12 +13,12 @@ public class ChestItem
         itemName = name;
         pointValue = value;
     }
+
+
 }
 
 public enum ChestItemType
 {
     Gem,      // Edelsteine
-    Weapon,   // Waffen
-    Food,     // Nahrung
 }
 

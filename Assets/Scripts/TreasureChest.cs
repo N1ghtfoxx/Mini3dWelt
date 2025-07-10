@@ -1,5 +1,8 @@
-using UnityEngine;
+using JetBrains.Annotations;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
 public class TreasureChest : MonoBehaviour, IInteractable
 {
@@ -14,8 +17,9 @@ public class TreasureChest : MonoBehaviour, IInteractable
     public GameObject openedChestModel;   // Geöffnete Truhe
 
     private InventoryManager inventoryManager;
+    private bool gameLoaded;
 
-    void Start()
+    public void Start()
     {
         inventoryManager = Object.FindFirstObjectByType<InventoryManager>();
 
@@ -25,6 +29,8 @@ public class TreasureChest : MonoBehaviour, IInteractable
         }
 
         UpdateChestVisual();
+
+        StartCoroutine(onSaveGameLoaded());
     }
 
     public bool CanInteract(PlayerInteraction player)
@@ -51,7 +57,7 @@ public class TreasureChest : MonoBehaviour, IInteractable
 
         CollectItems();
 
-        
+        SaveSystem.Instance.MarkChestAsOpened(gameObject.name);
     }
 
     private void UpdateChestVisual()
@@ -86,14 +92,27 @@ public class TreasureChest : MonoBehaviour, IInteractable
         }
     }
 
-/*    private void PlaySound(AudioClip clip)
-    {
-        if (audioSource != null && clip != null)
+    /*    private void PlaySound(AudioClip clip)
         {
-            audioSource.PlayOneShot(clip);
+            if (audioSource != null && clip != null)
+            {
+                audioSource.PlayOneShot(clip);
+            }
+        }
+    */
+
+    public IEnumerator onSaveGameLoaded()
+    {
+        while (SaveSystem.Instance == null)
+            yield return null;
+        gameLoaded = true;
+        isOpened = SaveSystem.Instance.currentSaveData.chestData.FirstOrDefault(c => c.chestId == gameObject.name).isOpened;
+
+        if (isOpened)
+        {
+           UpdateChestVisual();
         }
     }
-*/
 
     [ContextMenu("Reset Chest")]
     public void ResetChest()

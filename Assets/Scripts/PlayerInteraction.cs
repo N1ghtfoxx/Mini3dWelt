@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -54,4 +55,6 @@ public interface IInteractable
     void Interact(PlayerInteraction player);
     string GetInteractionText(PlayerInteraction player);
     bool CanInteract(PlayerInteraction player);
+    IEnumerator onSaveGameLoaded();
+    void Start();
 }

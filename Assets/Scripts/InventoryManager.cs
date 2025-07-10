@@ -3,11 +3,26 @@ using System.Linq;
 using UnityEngine;
 
 public class InventoryManager : MonoBehaviour
-{
+{   public InventoryManager instance;
+
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
     [Header("Inventory")]
     public List<KeyType> keys = new List<KeyType>();
     public List<ItemType> food = new List<ItemType>(); // Hier können verschiedene Nahrungsmittel-Typen gespeichert werden
     public List<CollectibleData> items = new List<CollectibleData>();
+    private bool gameLoaded;
 
     public void AddKey(KeyType keyType)
     {

@@ -10,9 +10,10 @@ public class UIManager : MonoBehaviour
     public static UIManager Instance;
 
     [Header("UI Elemente")]
-    public TextMeshProUGUI interactionText;      // Text: "[E] Schlüssel aufheben"
-    public TextMeshProUGUI scoreText;            // Text: "Punkte: 150"
-    public TextMeshProUGUI messageText;          // Text: "Schlüssel gefunden!"
+    public TextMeshProUGUI interactionText;      // Text: "[E] xy aufheben"
+    public TextMeshProUGUI scoreTextUpperPanel;  // Text: "Punkte: xy"
+    public TextMeshProUGUI scoreTextInventory;   // Text: "Punkte: xy" im Inventory
+    public TextMeshProUGUI messageText;          // Text: "xy eigesammelt!"
     public TextMeshProUGUI keyCountText;         // Text: "Schlüssel: 3"
     public TextMeshProUGUI itemCountText;        // Text: "Gegenstände: 7"
 
@@ -22,15 +23,11 @@ public class UIManager : MonoBehaviour
     public GameObject goldKeyUpperObject;              // Bild für Gold-Schlüssel
     public GameObject masterKeyUpperObject;            // Bild für Master-Schlüssel
 
-/*
+
     [Header("Bilder Inventory Panel")]
     public GameObject silverKeyInventory;            // Bild für Silber-Schlüssel  
     public GameObject goldKeyInventory;              // Bild für Gold-Schlüssel
     public GameObject masterKeyInventory;            // Bild für Master-Schlüssel
-    public GameObject gemsInventory;
-    public GameObject foodInventory;
-    public GameObject weaponsInventory;
-*/
 
     [Header("Einstellungen")]
     public float messageDuration = 3f;           // Wie lange Nachrichten angezeigt werden (3 Sekunden)
@@ -51,12 +48,6 @@ public class UIManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);  // Bleibt beim Szenen-Wechsel erhalten
- /*           silverKeyInventory.SetActive(false);  // Verstecke Silber-Schlüssel Bild
-            goldKeyInventory.SetActive(false);  // Verstecke Silber-Schlüssel Bild
-            masterKeyInventory.SetActive(false);  // Verstecke Silber-Schlüssel Bild
-            foodInventory.SetActive(false);  // Verstecke Food Bild
-            weaponsInventory.SetActive(false);  // Verstecke Weapons Bild
- */
         }
         else
         {
@@ -70,12 +61,19 @@ public class UIManager : MonoBehaviour
     }
 
     // NEU: Verstecke alle Schlüssel-Bilder
-    private void HideAllKeyImages()
+    private void HideAllKeyUpperObjects()
     {
         // Methode 2: Über einzelne Referenzen
         if (silverKeyUpperObject != null) silverKeyUpperObject.SetActive(false);
         if (goldKeyUpperObject != null) goldKeyUpperObject.SetActive(false);
         if (masterKeyUpperObject != null) masterKeyUpperObject.SetActive(false);
+    }
+
+    private void HideAllKeysInventory()
+    {   // Methode 2: Über einzelne Referenzen
+        if (silverKeyInventory != null) silverKeyInventory.SetActive(false);
+        if (goldKeyInventory != null) goldKeyInventory.SetActive(false);
+        if (masterKeyInventory != null) masterKeyInventory.SetActive(false);
     }
 
     private void Update()
@@ -102,7 +100,8 @@ public class UIManager : MonoBehaviour
         Debug.Log($"Anzahl Schlüssel: {keys.Count}");
 
         // Erst alle Bilder verstecken
-        HideAllKeyImages();
+        HideAllKeyUpperObjects();
+        HideAllKeysInventory();
 
         // Dann nur die Bilder für vorhandene Schlüssel anzeigen
         foreach (KeyType key in keys)
@@ -135,25 +134,28 @@ public class UIManager : MonoBehaviour
         {
 
             case KeyType.SilberSchlüssel:
-                if (silverKeyUpperObject != null)
+                if (silverKeyUpperObject && silverKeyInventory != null)
                 {
                     silverKeyUpperObject.SetActive(true);
+                    silverKeyInventory.SetActive(true);  // NEU: Silber-Schlüssel auch im Inventory anzeigen
                     Debug.Log("Silber-Schlüssel Bild angezeigt");
                 }
                 break;
 
             case KeyType.GoldSchlüssel:
-                if (goldKeyUpperObject != null)
+                if (goldKeyUpperObject && goldKeyInventory != null)
                 {
                     goldKeyUpperObject.SetActive(true);
+                    goldKeyInventory.SetActive(true);  // NEU: Gold-Schlüssel auch im Inventory anzeigen
                     Debug.Log("Gold-Schlüssel Bild angezeigt");
                 }
                 break;
 
             case KeyType.MasterSchlüssel:
-                if (masterKeyUpperObject != null)
+                if (masterKeyUpperObject && masterKeyInventory != null)
                 {
                     masterKeyUpperObject.SetActive(true);
+                    masterKeyInventory.SetActive(true);  // NEU: Master-Schlüssel auch im Inventory anzeigen
                     Debug.Log("Master-Schlüssel Bild angezeigt");
                 }
                 break;
@@ -167,25 +169,28 @@ public class UIManager : MonoBehaviour
         {
 
             case KeyType.SilberSchlüssel:
-                if (silverKeyUpperObject != null)
+                if (silverKeyUpperObject && silverKeyInventory != null)
                 {
                     silverKeyUpperObject.SetActive(false);
+                    silverKeyInventory.SetActive(false);  // NEU: Silber-Schlüssel auch im Inventory verstecken
                     Debug.Log("Silber-Schlüssel Bild versteckt");
                 }
                 break;
 
             case KeyType.GoldSchlüssel:
-                if (goldKeyUpperObject != null)
+                if (goldKeyUpperObject && goldKeyInventory != null)
                 {
                     goldKeyUpperObject.SetActive(false);
+                    goldKeyInventory.SetActive(false);  // NEU: Gold-Schlüssel auch im Inventory verstecken
                     Debug.Log("Gold-Schlüssel Bild versteckt");
                 }
                 break;
 
             case KeyType.MasterSchlüssel:
-                if (masterKeyUpperObject != null)
+                if (masterKeyUpperObject && masterKeyInventory != null)
                 {
                     masterKeyUpperObject.SetActive(false);
+                    masterKeyInventory.SetActive(false);  // NEU: Master-Schlüssel auch im Inventory verstecken
                     Debug.Log("Master-Schlüssel Bild versteckt");
                 }
                 break;
@@ -214,7 +219,8 @@ public class UIManager : MonoBehaviour
     public void UpdateScore(int newScore)
     {
         currentScore = newScore;
-        scoreText.text = currentScore.ToString();  // "Punkte: 150"
+        scoreTextUpperPanel.text = currentScore.ToString();  // "Punktestand" im Upper Panel
+        scoreTextInventory.text = currentScore.ToString();  // "Punktestand" im Inventory
     }
 
     public int GetCurrentScore()
@@ -267,11 +273,10 @@ public class UIManager : MonoBehaviour
     public void ResetUI()
     {
         UpdateScore(0);
-//        UpdateKeyCount(0);
         UpdateItemCount(0);
-//        HideInteractionText();
         HideMessage();
-        HideAllKeyImages();  // NEU: Alle Schlüssel-Bilder verstecken
-
+        HideAllKeyUpperObjects();  // Alle Schlüssel-Bilder im Upper Panel verstecken
+        HideAllKeysInventory();  // Alle Schlüssel-Bilder im Inventory verstecken
+        UpdateFoodDisplay(new List<ItemType>());  // Leere Food-Anzeige
     }
 }

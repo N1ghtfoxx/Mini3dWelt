@@ -1,10 +1,13 @@
+using System.Collections;
+using System.Linq;
 using UnityEngine;
 
 public class Food : MonoBehaviour, IInteractable
 {
     [Header("Food Settings")]
     public FoodType foodType;
- //   public AudioClip pickupSound;
+    private bool gameLoaded;
+    //   public AudioClip pickupSound;
 
     public void Interact(PlayerInteraction player)
     {
@@ -13,12 +16,15 @@ public class Food : MonoBehaviour, IInteractable
             // Zum Inventar hinzufügen
             player.GetComponent<InventoryManager>().AddFood();
 
+            UIManager.Instance.ShowMessage($"{foodType.ToString()} eingesammelt!");
+
+            SaveSystem.Instance.MarkFoodAsCollected(gameObject.name);
+
             // Effekte
             // AudioSource.PlayClipAtPoint(pickupSound, transform.position);
             Destroy(gameObject);
 
             // UI Update
-            UIManager.Instance.ShowMessage($"{foodType.ToString()} eingesammelt!");
         }
     }
 
@@ -29,7 +35,24 @@ public class Food : MonoBehaviour, IInteractable
 
     public bool CanInteract(PlayerInteraction player)
     {
-        return true; // Schlüssel können immer aufgehoben werden
+        return true; // Schinken kann immer aufgehoben werden
+    }
+
+    public IEnumerator onSaveGameLoaded()
+    {
+        while (SaveSystem.Instance == null)
+            yield return null;
+        gameLoaded = true;
+        var isCollected = SaveSystem.Instance.currentSaveData.collectedFoodInWorld.FirstOrDefault(f => f.foodName == gameObject.name).isCollected;
+        if (isCollected)
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    public void Start()
+    {
+        StartCoroutine(onSaveGameLoaded());
     }
 }
 
