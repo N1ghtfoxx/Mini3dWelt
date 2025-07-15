@@ -20,7 +20,7 @@ public class Collectible : MonoBehaviour
         {
             // Zum Inventar hinzufügen
             InventoryManager inventory = player.GetComponent<InventoryManager>();
-            inventory.AddItem(itemType, itemName, pointValue);
+            //inventory.AddItem(itemType, itemName, pointValue);
 
 /*            // Effekte abspielen
             if (pickupEffect != null)
@@ -30,7 +30,7 @@ public class Collectible : MonoBehaviour
                 AudioSource.PlayClipAtPoint(pickupSound, transform.position);*/
 
             // UI Updates
-            UIManager.Instance.AddScore(pointValue);
+            //UIManager.Instance.AddScore(pointValue);
             UIManager.Instance.ShowMessage($"{itemName} gefunden! +{pointValue} Punkte");
 
             Destroy(gameObject);

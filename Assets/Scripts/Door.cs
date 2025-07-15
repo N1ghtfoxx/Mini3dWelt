@@ -17,7 +17,7 @@ public class Door : MonoBehaviour, IInteractable
         public AudioClip lockedSound;*/
 
     private bool isOpen = false;
-    private bool gameLoaded = false;
+    //private bool gameLoaded = false;
 
     public void Interact(PlayerInteraction player)
     {
@@ -49,7 +49,7 @@ public class Door : MonoBehaviour, IInteractable
             isOpen = true;
             Debug.Log($"{doorName} wurde geöffnet.");
 
-            SaveSystem.Instance.MarkDoorAsOpened(gameObject.name);
+            SaveSystem.Instance.MarkDoorAsOpened(gameObject.name, requiredKey);
         }
     }
 
@@ -69,12 +69,15 @@ public class Door : MonoBehaviour, IInteractable
     {
         while(SaveSystem.Instance == null)
             yield return null;
-        gameLoaded = true;
-        isOpen = SaveSystem.Instance.currentSaveData.openedDoor.FirstOrDefault(d => d.doorName == gameObject.name).isOpened;
-
-        if (isOpen)
+        //gameLoaded = true;
+        var doorData = SaveSystem.Instance.currentSaveData.openedDoor.FirstOrDefault(d => d.doorName == gameObject.name);
+        if (doorData != null)
         {
-            hingeTransform.localRotation = Quaternion.Euler(0, 90, 0);
+            isOpen = doorData.isOpened;
+            if (isOpen)
+            {
+                hingeTransform.localRotation = Quaternion.Euler(0, 90, 0);
+            }
         }   
     }
 

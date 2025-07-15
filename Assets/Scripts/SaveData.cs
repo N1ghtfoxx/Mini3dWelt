@@ -9,7 +9,7 @@ public class GameSaveData
     public CollectedItemData[] collectedInWorldItems;
     public CollectedKeyData[] collectedInWorldKeys;
     public CollectedFoodData[] collectedFoodInWorld;
-    public TotalScoreData scoreData;
+    public int scoreData;
     public InventoryData inventoryData;
     public OpenedDoorData[] openedDoor;
 

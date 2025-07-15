@@ -1,15 +1,19 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SocialPlatforms.Impl;
+using static UnityEngine.Rendering.DebugUI;
 
 public class InventoryManager : MonoBehaviour
-{   public InventoryManager instance;
+{
+    public static InventoryManager Instance;
 
     private void Awake()
     {
-        if (instance == null)
+        if (Instance == null)
         {
-            instance = this;
+            Instance = this;
             DontDestroyOnLoad(gameObject);
         }
         else
@@ -20,8 +24,7 @@ public class InventoryManager : MonoBehaviour
 
     [Header("Inventory")]
     public List<KeyType> keys = new List<KeyType>();
-    public List<ItemType> food = new List<ItemType>(); // Hier können verschiedene Nahrungsmittel-Typen gespeichert werden
-    public List<CollectibleData> items = new List<CollectibleData>();
+    public List<string> food = new List<string>();
     private bool gameLoaded;
 
     public void AddKey(KeyType keyType)
@@ -32,8 +35,8 @@ public class InventoryManager : MonoBehaviour
     }
 
     public void AddFood()
-    {  
-        food.Add(ItemType.Food);
+    {
+        food.Add("Schinken");
         UIManager.Instance.UpdateFoodDisplay(food);
         Debug.Log("Essen zum Inventar hinzugefügt.");
     }
@@ -48,13 +51,12 @@ public class InventoryManager : MonoBehaviour
         return food.Count > 0;
     }
 
-
     public void UseKey(KeyType keyType)
     {
         if (HasKey(keyType))
         {
             keys.Remove(keyType);
-            UIManager.Instance.UpdateKeyDisplay(keys);
+            UpdateKeys();
             Debug.Log($"{keyType} verwendet. Verbleibende Schlüssel: {keys.Count}");
         }
         else
@@ -63,12 +65,20 @@ public class InventoryManager : MonoBehaviour
         }
     }
 
+    public void UpdateKeys()
+    {
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.UpdateKeyDisplay(keys);
+            Debug.Log("Schlüssel-UI aktualisiert.");
+        }
+    }
+
     public void UseFood()
     {
         if (HasFood())
         {
-            /// TODO: Taste für Essen verwenden
-            food.Remove(ItemType.Food); // Entfernt ein beliebiges Nahrungsmittel
+            food.Remove("Schinken");
             UIManager.Instance.UpdateFoodDisplay(food);
             Debug.Log("Essen verwendet.");
         }
@@ -78,30 +88,26 @@ public class InventoryManager : MonoBehaviour
         }
     }
 
-    // Anzahl eines bestimmten Schlüssel-Typs
     public int GetKeyCount(KeyType keyType)
     {
         return keys.Count(key => key == keyType);
     }
-    
-    // Gesamte Schlüssel-Anzahl
+
     public int GetTotalKeyCount()
     {
         return keys.Count;
     }
 
-    public void AddItem(ItemType type, string name, int value)
-    {
-        items.Add(new CollectibleData(type, name, value));
-        UIManager.Instance.UpdateItemCount(items.Count);
-    }
+    //public void AddItem(ItemType type, string name, int value)
+    //{
+    //    UIManager.Instance.AddScore(value);
+    //}
 
     public int GetTotalScore()
     {
-        return items.Sum(item => item.pointValue);
+        return SaveSystem.Instance.currentSaveData.scoreData;
     }
 
-    // Debug-Ausgabe für Inventar
     public void DebugInventory()
     {
         Debug.Log("=== INVENTAR ===");
@@ -110,22 +116,133 @@ public class InventoryManager : MonoBehaviour
         {
             Debug.Log($"- {key}");
         }
-        Debug.Log($"Items gesamt: {items.Count}");
+        Debug.Log($"Items gesamt: {SaveSystem.Instance.currentSaveData.scoreData}");
         Debug.Log($"Gesamtpunktzahl: {GetTotalScore()}");
     }
-}
 
-[System.Serializable]
-public class CollectibleData
-{
-    public ItemType type;
-    public string name;
-    public int pointValue;
-
-    public CollectibleData(ItemType t, string n, int v)
+    public void LoadInventoryFromSaveData(InventoryData data)
     {
-        type = t; 
-        name = n; 
-        pointValue = v;
+        Debug.Log("=== LADE INVENTAR ===");
+
+        ClearAllInventories();
+
+        // Schlüssel laden
+        LoadKeys(data.collectedKeys);
+
+        // Essen laden
+        LoadFood(data.collectedFood);
+
+        // Score laden und UI aktualisieren
+        //LoadCurrentScore(SaveSystem.Instance.currentSaveData.scoreData);
+
+        UpdateUIAndLog();
+
+        UIManager.Instance.UpdateScore();
+    }
+
+    private void ClearAllInventories()
+    {
+        keys.Clear();
+        food.Clear();
+        Debug.Log("Inventar geleert vor dem Laden.");
+    }
+
+    private void LoadKeys(CollectedKeyData[] keyDataArray)
+    {
+        if (keyDataArray == null)
+        {
+            Debug.Log("Keine Schlüssel-Daten zum Laden vorhanden.");
+            return;
+        }
+
+        Debug.Log($"Lade {keyDataArray.Length} Schlüssel-Einträge...");
+
+        foreach (var keyData in keyDataArray.Where(k => k?.isCollected == true))
+        {
+            if (Enum.TryParse(keyData.keyName, out KeyType keyType))
+            {
+                keys.Add(keyType);
+                Debug.Log($"Schlüssel {keyData.keyName} geladen");
+            }
+            else
+            {
+                Debug.LogWarning($"Unbekannter Schlüsselname beim Laden: {keyData.keyName}");
+            }
+        }
+
+        // WICHTIG: UI nach dem Laden aktualisieren
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.UpdateKeyDisplay(keys);
+            Debug.Log($"Schlüssel-UI aktualisiert mit {keys.Count} Schlüsseln");
+        }
+    }
+
+    private void LoadFood(CollectedFoodData[] foodDataArray)
+    {
+        if (foodDataArray == null)
+        {
+            Debug.Log("Keine Essen-Daten zum Laden vorhanden.");
+            return;
+        }
+
+        Debug.Log($"Lade {foodDataArray.Length} Essen-Einträge...");
+
+        foreach (var foodData in foodDataArray.Where(f => f?.isCollected == true))
+        {
+            food.Add(foodData.foodName);
+            Debug.Log($"Essen {foodData.foodName} geladen");
+        }
+
+        // WICHTIG: UI nach dem Laden aktualisieren
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.UpdateFoodDisplay(food);
+            Debug.Log($"Essen-UI aktualisiert mit {food.Count} Essen-Items");
+        }
+    }
+
+    //private void LoadCurrentScore(int score)
+    //{
+    //    if (UIManager.Instance != null)
+    //    {
+    //        UIManager.Instance.UpdateScore(score);
+    //        Debug.Log($"Score UI aktualisiert: {score}");
+    //    }
+    //}
+
+    private void UpdateUIAndLog()
+    {
+        Debug.Log("=== INVENTAR NACH DEM LADEN ===");
+        Debug.Log($"Schlüssel gesamt: {keys.Count}");
+        foreach (KeyType key in keys)
+        {
+            Debug.Log($"- {key}");
+        }
+        Debug.Log($"Essen gesamt: {food.Count}");
+        Debug.Log($"Gesamtpunktzahl: {GetTotalScore()}");
+
+        // Finale UI-Aktualisierung zur Sicherheit
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.UpdateKeyDisplay(keys);
+            UIManager.Instance.UpdateFoodDisplay(food);
+            UIManager.Instance.UpdateScore();
+        }
+    }
+
+    [System.Serializable]
+    public class CollectibleData
+    {
+        public ItemType type;
+        public string name;
+        public int pointValue;
+
+        public CollectibleData(ItemType t, string n, int v)
+        {
+            type = t;
+            name = n;
+            pointValue = v;
+        }
     }
 }

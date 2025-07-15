@@ -3,6 +3,8 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using UnityEditor;
+using System.Linq;
 
 public class UIManager : MonoBehaviour
 {
@@ -37,7 +39,7 @@ public class UIManager : MonoBehaviour
     public GameObject FoodInventoryParent;  // Parent-Objekt für Essen im Inventar
 
     // Private Variablen
-    private int currentScore = 0;                // Aktuelle Punkte
+    /*private int currentScore = 0;  */              // Aktuelle Punkte
     private Coroutine messageCoroutine;          // Für zeitgesteuerte Nachrichten
 
 
@@ -61,7 +63,7 @@ public class UIManager : MonoBehaviour
     }
 
     // NEU: Verstecke alle Schlüssel-Bilder
-    private void HideAllKeyUpperObjects()
+    public void HideAllKeyUpperObjects()
     {
         // Methode 2: Über einzelne Referenzen
         if (silverKeyUpperObject != null) silverKeyUpperObject.SetActive(false);
@@ -69,7 +71,7 @@ public class UIManager : MonoBehaviour
         if (masterKeyUpperObject != null) masterKeyUpperObject.SetActive(false);
     }
 
-    private void HideAllKeysInventory()
+    public void HideAllKeysInventory()
     {   // Methode 2: Über einzelne Referenzen
         if (silverKeyInventory != null) silverKeyInventory.SetActive(false);
         if (goldKeyInventory != null) goldKeyInventory.SetActive(false);
@@ -110,7 +112,7 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    public void UpdateFoodDisplay(List<ItemType> food)
+    public void UpdateFoodDisplay(List<string> food)
     {
         // 1. Alle bisherigen Food-Objekte im Parent löschen
         foreach (Transform child in FoodInventoryParent.transform)
@@ -128,7 +130,7 @@ public class UIManager : MonoBehaviour
     }
 
     // Zeige das Bild für einen bestimmten Schlüssel-Typ
-    private void ShowKeyImage(KeyType keyType)
+    public void ShowKeyImage(KeyType keyType)
     {
         switch (keyType)
         {
@@ -163,7 +165,7 @@ public class UIManager : MonoBehaviour
     }
 
     // Verstecke das Bild für einen bestimmten Schlüssel-Typ
-    private void HideKeyImage(KeyType keyType)
+    public void HideKeyImage(KeyType keyType)
     {
         switch (keyType)
         {
@@ -210,22 +212,11 @@ public class UIManager : MonoBehaviour
     }
 
     // PUNKTE-SYSTEM
-    public void AddScore(int points)
+    public void UpdateScore()
     {
-        currentScore += points;  // Addiere Punkte dazu
-        UpdateScore(currentScore);  // Aktualisiere Anzeige
-    }
-
-    public void UpdateScore(int newScore)
-    {
-        currentScore = newScore;
+        var currentScore = SaveSystem.Instance.currentSaveData.scoreData;
         scoreTextUpperPanel.text = currentScore.ToString();  // "Punktestand" im Upper Panel
         scoreTextInventory.text = currentScore.ToString();  // "Punktestand" im Inventory
-    }
-
-    public int GetCurrentScore()
-    {
-        return currentScore;  // Gib aktuelle Punkte zurück
     }
 
     // NACHRICHTEN-SYSTEM (temporäre Meldungen)
@@ -265,18 +256,20 @@ public class UIManager : MonoBehaviour
     }
 
     // GEGENSTÄNDE-ANZEIGE  
-    public void UpdateItemCount(int count)
+    public void UpdateItemCount(int count = 0)
     {
         itemCountText.text = $"Gegenstände: {count}";  
     }
 
     public void ResetUI()
     {
-        UpdateScore(0);
-        UpdateItemCount(0);
+        UpdateScore();
+        UpdateItemCount();
         HideMessage();
         HideAllKeyUpperObjects();  // Alle Schlüssel-Bilder im Upper Panel verstecken
         HideAllKeysInventory();  // Alle Schlüssel-Bilder im Inventory verstecken
-        UpdateFoodDisplay(new List<ItemType>());  // Leere Food-Anzeige
+        //UpdateFoodDisplay( SaveSystem.Instance.currentSaveData.inventoryData.collectedFood.Where(f => f.isCollected)
+        //                .Select(f => f.foodName)
+        //                .ToList() );  // Leere Food-Anzeige
     }
 }

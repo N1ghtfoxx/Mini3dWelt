@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
-using System.Linq; // Am Anfang der Datei einfügen
+using System.Linq;
+using System;
 using UnityEngine;
 
 public class SaveSystem : MonoBehaviour
@@ -20,11 +21,34 @@ public class SaveSystem : MonoBehaviour
             DontDestroyOnLoad(gameObject);
             savePath = Path.Combine(Application.persistentDataPath, "savegame.json");
             InitializeSaveData();
-            LoadGame();
         }
         else
         {
             Destroy(gameObject);
+        }
+    }
+
+    private void Start()
+    {
+        LoadGame();
+        // WICHTIG: Verzögere die UI-Aktualisierung um sicherzustellen, dass alle Manager bereit sind
+        StartCoroutine(UpdateUIAfterLoad());
+    }
+
+    private System.Collections.IEnumerator UpdateUIAfterLoad()
+    {
+        // Warte einen Frame, damit alle Manager initialisiert sind
+        yield return null;
+
+        // Stelle sicher, dass die UI korrekt aktualisiert wird
+        if (InventoryManager.Instance != null)
+        {
+            InventoryManager.Instance.UpdateKeys();
+        }
+
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.UpdateScore();
         }
     }
 
@@ -33,15 +57,16 @@ public class SaveSystem : MonoBehaviour
         currentSaveData = new GameSaveData
         {
             playerData = new PlayerData(),
-            chestData = new TreasureChestData[0], // Initialize as an empty array instead of a List
+            chestData = new TreasureChestData[0],
             collectedInWorldItems = new CollectedItemData[0],
             collectedInWorldKeys = new CollectedKeyData[0],
             collectedFoodInWorld = new CollectedFoodData[0],
-            inventoryData = new InventoryData(), 
+            scoreData = 0,
+            inventoryData = new InventoryData(),
             openedDoor = new OpenedDoorData[0],
         };
         currentSaveData.inventoryData.collectedItems = new CollectedItemData[0];
-        currentSaveData.inventoryData.collectedKeys = new CollectedKeyData[0];  
+        currentSaveData.inventoryData.collectedKeys = new CollectedKeyData[0];
         currentSaveData.inventoryData.collectedFood = new CollectedFoodData[0];
     }
 
@@ -51,8 +76,6 @@ public class SaveSystem : MonoBehaviour
         {
             // Spieler-Position und -Rotation speichern
             SavePlayerData();
-
-            // Aktuelle Spielzeit aktualisieren
 
             // In JSON konvertieren und speichern
             string json = JsonUtility.ToJson(currentSaveData, true);
@@ -76,15 +99,41 @@ public class SaveSystem : MonoBehaviour
                 string json = File.ReadAllText(savePath);
                 currentSaveData = JsonUtility.FromJson<GameSaveData>(json);
 
+                Debug.Log("=== LADE SPIEL ===");
+                Debug.Log($"Geladener Score: {currentSaveData.scoreData}");
+                Debug.Log($"Geladene Schlüssel: {currentSaveData.inventoryData.collectedKeys?.Length ?? 0}");
+                Debug.Log($"Geladenes Essen: {currentSaveData.inventoryData.collectedFood?.Length ?? 0}");
+
                 // Spieler-Position und -Rotation laden
                 LoadPlayerData();
 
-                Debug.Log("Spiel geladen: " + savePath);
+                // WICHTIG: Erst nach dem Laden der Daten das Inventar aktualisieren
+                if (InventoryManager.Instance != null)
+                {
+                    InventoryManager.Instance.LoadInventoryFromSaveData(currentSaveData.inventoryData);
+                }
+
+                // UI aktualisieren
+                if (UIManager.Instance != null)
+                {
+                    UIManager.Instance.UpdateScore();
+                }
+
+                if (currentSaveData.inventoryData.collectedFood.Length > 0)
+                {
+                    var foodList = currentSaveData.inventoryData.collectedFood
+                        .Where(f => f.isCollected)
+                        .Select(f => f.foodName)
+                        .ToList();
+                    UIManager.Instance.UpdateFoodDisplay(foodList);
+                }
+
+                Debug.Log("Spiel erfolgreich geladen: " + savePath);
                 return true;
             }
             else
             {
-                Debug.Log("Keine Speicherdatei gefunden.");
+                Debug.Log("Keine Speicherdatei gefunden - Neues Spiel wird gestartet.");
                 return false;
             }
         }
@@ -129,40 +178,41 @@ public class SaveSystem : MonoBehaviour
         }
     }
 
-    void LoadInventoryData()
-    {
-        ///TODO: Implementieren Sie die Logik zum Laden der Inventardaten
-        // Hier können Sie die Logik zum Laden der Inventardaten implementieren
-        // z.B. UI-Elemente aktualisieren, um die gesammelten Gegenstände anzuzeigen
-    }
-
     // Schlüssel-Funktionen
     public void MarkKeyAsCollected(string keyName)
     {
         var existingKey = currentSaveData.collectedInWorldKeys.FirstOrDefault(k => k.keyName == keyName);
         if (existingKey == null)
         {
-            currentSaveData.collectedInWorldKeys = currentSaveData.collectedInWorldKeys.Append(new CollectedKeyData
+            existingKey = new CollectedKeyData
             {
                 keyName = keyName,
                 isCollected = true
-            }).ToArray();
+            };
+            currentSaveData.collectedInWorldKeys = currentSaveData.collectedInWorldKeys.Append(existingKey).ToArray();
         }
         else
         {
             existingKey.isCollected = true;
         }
-        // Zum Inventar hinzufügen
-        if (!currentSaveData.inventoryData.collectedKeys.Contains(existingKey))
+
+        var itemKey = new CollectedKeyData
         {
-            currentSaveData.inventoryData.collectedKeys = currentSaveData.inventoryData.collectedKeys.Append(existingKey).ToArray();
+            keyName = keyName,
+            isCollected = true
+        };
+        // WICHTIG: Zum Inventar hinzufügen (verwende Any() statt Contains() für bessere Kompatibilität)
+        if (!currentSaveData.inventoryData.collectedKeys.Any(k => k.keyName == keyName && k.isCollected))
+        {
+            currentSaveData.inventoryData.collectedKeys = currentSaveData.inventoryData.collectedKeys.Append(itemKey).ToArray();
+            Debug.Log($"Schlüssel '{keyName}' zum Inventar hinzugefügt. Inventar-Schlüssel: {currentSaveData.inventoryData.collectedKeys.Length}");
         }
 
         SaveGame();
     }
 
     // Tür-Funktionen
-    public void MarkDoorAsOpened(string doorName)
+    public void MarkDoorAsOpened(string doorName, KeyType keyType)
     {
         var existingDoor = currentSaveData.openedDoor.FirstOrDefault(d => d.doorName == doorName);
         if (existingDoor == null)
@@ -176,6 +226,13 @@ public class SaveSystem : MonoBehaviour
         else
         {
             existingDoor.isOpened = true;
+        }
+
+        var keyName = keyType.ToString();
+        var existingKey = currentSaveData.inventoryData.collectedKeys.FirstOrDefault(k => k.keyName == keyName);
+        if (currentSaveData.inventoryData.collectedKeys.Any(k => k.keyName == keyName && k.isCollected))
+        {
+            existingKey.isCollected = false;
         }
 
         SaveGame();
@@ -201,29 +258,32 @@ public class SaveSystem : MonoBehaviour
     }
 
     // Gegenstände-Funktionen
-    public void MarkItemAsCollected(string itemName)
-    {
-        var existingItem = currentSaveData.collectedInWorldItems.FirstOrDefault(i => i.itemName == itemName);
-        if (existingItem == null)
-        {
-            currentSaveData.collectedInWorldItems = currentSaveData.collectedInWorldItems.Append(existingItem = new CollectedItemData
-            {
-                itemName = itemName,
-                isCollected = true
-            }).ToArray();
-        }
-        else
-        {
-            existingItem.isCollected = true;
-        }
+    //public void MarkItemAsCollected(string itemName)
+    //{
+    //    var existingItem = currentSaveData.collectedInWorldItems.FirstOrDefault(i => i.itemName == itemName);
+    //    if (existingItem == null)
+    //    {
+    //        existingItem = new CollectedItemData
+    //        {
+    //            itemName = itemName,
+    //            isCollected = true
+    //        };
+    //        currentSaveData.collectedInWorldItems = currentSaveData.collectedInWorldItems.Append(existingItem).ToArray();
+    //    }
+    //    else
+    //    {
+    //        existingItem.isCollected = true;
+    //    }
 
-        // Zum Inventar hinzufügen
-        if (!currentSaveData.inventoryData.collectedItems.Contains(existingItem))
-        {
-           currentSaveData.inventoryData.collectedItems = currentSaveData.inventoryData.collectedItems.Append(existingItem).ToArray();
-        }
-        SaveGame();
-    }
+    //    // WICHTIG: Zum Inventar hinzufügen (verwende Any() statt Contains() für bessere Kompatibilität)
+    //    if (!currentSaveData.inventoryData.collectedItems.Any(i => i.itemName == itemName && i.isCollected))
+    //    {
+    //        currentSaveData.inventoryData.collectedItems = currentSaveData.inventoryData.collectedItems.Append(existingItem).ToArray();
+    //        Debug.Log($"Item '{itemName}' zum Inventar hinzugefügt. Inventar-Items: {currentSaveData.inventoryData.collectedItems.Length}");
+    //    }
+
+    //    SaveGame();
+    //}
 
     // Food-Funktionen
     public void MarkFoodAsCollected(string foodName)
@@ -231,47 +291,49 @@ public class SaveSystem : MonoBehaviour
         var existingFood = currentSaveData.collectedFoodInWorld.FirstOrDefault(f => f.foodName == foodName);
         if (existingFood == null)
         {
-            currentSaveData.collectedFoodInWorld = currentSaveData.collectedFoodInWorld.Append(new CollectedFoodData
+            existingFood = new CollectedFoodData
             {
                 foodName = foodName,
                 isCollected = true
-            }).ToArray();
-            existingFood = currentSaveData.collectedFoodInWorld.Last(); // Referenz auf das neu erstellte Element
+            };
+            currentSaveData.collectedFoodInWorld = currentSaveData.collectedFoodInWorld.Append(existingFood).ToArray();
         }
         else
         {
             existingFood.isCollected = true;
         }
-        // Zum Inventar hinzufügen
-        if (!currentSaveData.inventoryData.collectedFood.Contains(existingFood))
+        var itemFood = new CollectedFoodData
         {
-            currentSaveData.inventoryData.collectedFood = currentSaveData.inventoryData.collectedFood.Append(existingFood).ToArray();
+            foodName = foodName,
+            isCollected = true
+        };
+        // WICHTIG: Zum Inventar hinzufügen (verwende Any() statt Contains() für bessere Kompatibilität)
+        if (!currentSaveData.inventoryData.collectedFood.Any(f => f.foodName == foodName && f.isCollected))
+        {
+            currentSaveData.inventoryData.collectedFood = currentSaveData.inventoryData.collectedFood.Append(itemFood).ToArray();
+            Debug.Log($"Essen '{foodName}' zum Inventar hinzugefügt. Inventar-Essen: {currentSaveData.inventoryData.collectedFood.Length}");
         }
+
         SaveGame();
     }
 
-    public void MarkItemAsUsed(string itemName)
-    {
-        var existingItem = currentSaveData.inventoryData.collectedItems.FirstOrDefault(i => i.itemName == itemName);
-        if (existingItem == null)
-        {
-            Debug.LogWarning("Item nicht im Inventar gefunden: " + itemName);
-            return;
-        }
-        existingItem.isCollected = true;
+    public void AddScore(int score)
+    {         
+        currentSaveData.scoreData += score;
+        UIManager.Instance.UpdateScore();  // UI aktualisieren
         SaveGame();
     }
-
-/*
-    // Spieler-Statistiken
-    public void UpdatePlayerStats(int level, int experience, int health, int maxHealth)
-    {
-        currentSaveData.playerData.level = level;
-        currentSaveData.playerData.experience = experience;
-        currentSaveData.playerData.health = health;
-        currentSaveData.playerData.maxHealth = maxHealth;
-    }
-*/
+    //public void MarkItemAsUsed(string itemName)
+    //{
+    //    var existingItem = currentSaveData.inventoryData.collectedItems.FirstOrDefault(i => i.itemName == itemName);
+    //    if (existingItem == null)
+    //    {
+    //        Debug.LogWarning("Item nicht im Inventar gefunden: " + itemName);
+    //        return;
+    //    }
+    //    existingItem.isCollected = true;
+    //    SaveGame();
+    //}
 
     // Getter für aktuelle Daten
     public GameSaveData GetCurrentSaveData()
@@ -292,5 +354,18 @@ public class SaveSystem : MonoBehaviour
     public bool SaveFileExists()
     {
         return File.Exists(savePath);
+    }
+
+    // Debug-Methode für Speicherdaten
+    public void DebugSaveData()
+    {
+        Debug.Log("=== SPEICHERDATEN DEBUG ===");
+        Debug.Log($"Score: {currentSaveData.scoreData}");
+        Debug.Log($"Schlüssel in World: {currentSaveData.collectedInWorldKeys?.Length ?? 0}");
+        Debug.Log($"Schlüssel in Inventar: {currentSaveData.inventoryData.collectedKeys?.Length ?? 0}");
+        Debug.Log($"Essen in World: {currentSaveData.collectedFoodInWorld?.Length ?? 0}");
+        Debug.Log($"Essen in Inventar: {currentSaveData.inventoryData.collectedFood?.Length ?? 0}");
+        Debug.Log($"Items in World: {currentSaveData.collectedInWorldItems?.Length ?? 0}");
+        Debug.Log($"Items in Inventar: {currentSaveData.inventoryData.collectedItems?.Length ?? 0}");
     }
 }

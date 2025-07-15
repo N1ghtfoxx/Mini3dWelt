@@ -17,7 +17,7 @@ public class TreasureChest : MonoBehaviour, IInteractable
     public GameObject openedChestModel;   // Geöffnete Truhe
 
     private InventoryManager inventoryManager;
-    private bool gameLoaded;
+    //private bool gameLoaded;
 
     public void Start()
     {
@@ -78,18 +78,15 @@ public class TreasureChest : MonoBehaviour, IInteractable
 
         foreach (ChestItem item in chestItems)
         {
-            inventoryManager.AddItem(item.itemType, item.itemName, item.pointValue);
+            //inventoryManager.AddItem(item.itemType, item.itemName, item.pointValue);
             totalValue += item.pointValue;
             collectedItems += $"{item.itemName} ";
         }
 
         chestItems.Clear(); // Leere die Truhe nach dem Sammeln
         UIManager.Instance.ShowMessage($"Truhe geöffnet! {collectedItems} gefunden!");
+        SaveSystem.Instance.AddScore(totalValue);
 
-        if (totalValue > 0)
-        {
-            UIManager.Instance.AddScore(totalValue);
-        }
     }
 
     /*    private void PlaySound(AudioClip clip)
@@ -105,12 +102,16 @@ public class TreasureChest : MonoBehaviour, IInteractable
     {
         while (SaveSystem.Instance == null)
             yield return null;
-        gameLoaded = true;
-        isOpened = SaveSystem.Instance.currentSaveData.chestData.FirstOrDefault(c => c.chestId == gameObject.name).isOpened;
-
-        if (isOpened)
+        //gameLoaded = true;
+        var blah = SaveSystem.Instance.currentSaveData.chestData.FirstOrDefault(c => c.chestId == gameObject.name);
+        if (blah != null)
         {
-           UpdateChestVisual();
+            isOpened = blah.isOpened;
+
+            if (isOpened)
+            {
+                UpdateChestVisual();
+            }
         }
     }
 

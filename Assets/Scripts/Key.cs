@@ -7,7 +7,7 @@ public class Key : MonoBehaviour, IInteractable
 {
     [Header("Key Settings")]
     public KeyType keyType;
-    private bool gameLoaded; 
+    //private bool gameLoaded; 
 
 //    public AudioClip pickupSound;
 
@@ -46,12 +46,16 @@ public class Key : MonoBehaviour, IInteractable
     {
         while (SaveSystem.Instance == null)
             yield return null;
-        gameLoaded = true;
-        var isCollected = SaveSystem.Instance.currentSaveData.collectedInWorldKeys.FirstOrDefault(k => k.keyName == gameObject.name).isCollected;
+        //gameLoaded = true;
+        var keyData = SaveSystem.Instance.currentSaveData.collectedInWorldKeys.FirstOrDefault(k => k.keyName == gameObject.name);
 
-        if (isCollected)
-        {
-            Destroy(gameObject);
+        if (keyData != null)
+            {
+            if (keyData.isCollected)
+            {
+                // Wenn der Schlüssel bereits gesammelt wurde, wird das Objekt zerstört
+                Destroy(gameObject);
+            }
         }
     }
 

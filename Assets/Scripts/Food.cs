@@ -6,7 +6,7 @@ public class Food : MonoBehaviour, IInteractable
 {
     [Header("Food Settings")]
     public FoodType foodType;
-    private bool gameLoaded;
+    //private bool gameLoaded;
     //   public AudioClip pickupSound;
 
     public void Interact(PlayerInteraction player)
@@ -42,11 +42,15 @@ public class Food : MonoBehaviour, IInteractable
     {
         while (SaveSystem.Instance == null)
             yield return null;
-        gameLoaded = true;
-        var isCollected = SaveSystem.Instance.currentSaveData.collectedFoodInWorld.FirstOrDefault(f => f.foodName == gameObject.name).isCollected;
-        if (isCollected)
-        {
-            Destroy(gameObject);
+        //gameLoaded = true;
+        var foodData = SaveSystem.Instance.currentSaveData.collectedFoodInWorld.FirstOrDefault(f => f.foodName == gameObject.name);
+        if (foodData != null)
+            {
+            if (foodData.isCollected)
+            {
+                // Wenn das Essen bereits gesammelt wurde, wird das Objekt zerstört
+                Destroy(gameObject);
+            }
         }
     }
 
