@@ -67,7 +67,7 @@ public class Door : MonoBehaviour, IInteractable
 
     public IEnumerator onSaveGameLoaded()
     {
-        while(SaveSystem.Instance == null)
+        while(SaveSystem.Instance == null || SaveSystem.Instance.currentSaveData.playerData.position[0] == 0f)
             yield return null;
         //gameLoaded = true;
         var doorData = SaveSystem.Instance.currentSaveData.openedDoor.FirstOrDefault(d => d.doorName == gameObject.name);
