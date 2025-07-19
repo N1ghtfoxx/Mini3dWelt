@@ -1,5 +1,8 @@
 using UnityEngine;
 
+// summary:
+// This script defines a ChestItem class that represents an item in a chest.
+// It includes properties for the item type, name, and point value.
 [System.Serializable]
 public class ChestItem
 {
@@ -14,11 +17,9 @@ public class ChestItem
         pointValue = value;
     }
 
-
 }
 
 public enum ChestItemType
 {
     Gem,      // Edelsteine
 }
-

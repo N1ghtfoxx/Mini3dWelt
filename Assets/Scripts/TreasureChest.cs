@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+//summary:
+// This script manages a treasure chest in a game.
+// It allows players to interact with the chest, open it, and collect items.
 public class TreasureChest : MonoBehaviour, IInteractable
 {
     [Header("Chest Settings")]
@@ -17,8 +20,9 @@ public class TreasureChest : MonoBehaviour, IInteractable
     public GameObject openedChestModel;   // Geöffnete Truhe
 
     private InventoryManager inventoryManager;
-    //private bool gameLoaded;
 
+    // summary:
+    // Initializes the chest and sets up the inventory manager.
     public void Start()
     {
         inventoryManager = Object.FindFirstObjectByType<InventoryManager>();
@@ -28,27 +32,38 @@ public class TreasureChest : MonoBehaviour, IInteractable
             Debug.LogError("InventoryManager nicht gefunden!");
         }
 
-        UpdateChestVisual();
+        UpdateChestVisual();    // update the visual state of the chest
 
-        StartCoroutine(onSaveGameLoaded());
+        StartCoroutine(onSaveGameLoaded()); // Wait for the save system to load before checking chest state
     }
 
+    // summary:
+    // Checks if the player can interact with the chest.
+    // Returns true if the chest is not opened.
     public bool CanInteract(PlayerInteraction player)
     {
         return !isOpened;
     }
 
+    // summary:
+    // Returns the interaction text for the player.
+    // If the chest is opened, returns an empty string.
     public string GetInteractionText(PlayerInteraction player)
     {
         return isOpened ? "" : "[E] Truhe öffnen";
     }
 
+    // summary:
+    // Handles the player's interaction with the chest.
+    // If the chest is already opened, does nothing.
     public void Interact(PlayerInteraction player)
     {
         if (isOpened) return;
         OpenChest();
     }
 
+    // summary:
+    // Opens the chest, updates its visual state, collects items, and saves the state.
     private void OpenChest()
     {
         isOpened = true;
@@ -60,6 +75,8 @@ public class TreasureChest : MonoBehaviour, IInteractable
         SaveSystem.Instance.MarkChestAsOpened(gameObject.name);
     }
 
+    // summary:
+    // Updates the visual representation of the chest based on its state (opened or closed).
     private void UpdateChestVisual()
     {
         if (closedChestModel != null)
@@ -69,6 +86,9 @@ public class TreasureChest : MonoBehaviour, IInteractable
             openedChestModel.SetActive(isOpened);
     }
 
+    // summary:
+    // Collects items from the chest and adds them to the player's inventory.
+    // Displays a message with the collected items and updates the score.
     private void CollectItems()
     {
         if (inventoryManager == null) return;
@@ -78,7 +98,6 @@ public class TreasureChest : MonoBehaviour, IInteractable
 
         foreach (ChestItem item in chestItems)
         {
-            //inventoryManager.AddItem(item.itemType, item.itemName, item.pointValue);
             totalValue += item.pointValue;
             collectedItems += $"{item.itemName} ";
         }
@@ -89,6 +108,8 @@ public class TreasureChest : MonoBehaviour, IInteractable
 
     }
 
+    // summary:
+    // This method is commented out, but it was intended to play a sound when the chest is opened.
     /*    private void PlaySound(AudioClip clip)
         {
             if (audioSource != null && clip != null)
@@ -98,15 +119,17 @@ public class TreasureChest : MonoBehaviour, IInteractable
         }
     */
 
+    // summary:
+    // Coroutine that waits for the save system to load before checking the chest state.
     public IEnumerator onSaveGameLoaded()
     {
         while (SaveSystem.Instance == null || SaveSystem.Instance.currentSaveData.playerData.position[0] == 0f)
             yield return null;
         //gameLoaded = true;
-        var blah = SaveSystem.Instance.currentSaveData.chestData.FirstOrDefault(c => c.chestId == gameObject.name);
-        if (blah != null)
+        var chest = SaveSystem.Instance.currentSaveData.chestData.FirstOrDefault(c => c.chestId == gameObject.name);
+        if (chest != null)
         {
-            isOpened = blah.isOpened;
+            isOpened = chest.isOpened;
 
             if (isOpened)
             {
@@ -116,6 +139,9 @@ public class TreasureChest : MonoBehaviour, IInteractable
     }
 
     [ContextMenu("Reset Chest")]
+
+    // summary:
+    // Resets the chest to its initial state (closed).
     public void ResetChest()
     {
         isOpened = false;

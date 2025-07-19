@@ -1,6 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// summary:
+// This script defines the structure for saving game data.
+// It includes player data, treasure chest states, collected items, keys, food, score, and inventory.
+
+//summary:
+// This class holds all the data needed to save the game state.
 [System.Serializable]
 public class GameSaveData
 {
@@ -15,6 +21,9 @@ public class GameSaveData
 
 }
 
+// summary:
+// This class holds the player's position and rotation data.
+// It can be extended to include more player-related data such as level, experience, health, etc.
 [System.Serializable]
 public class PlayerData
 {
@@ -26,12 +35,16 @@ public class PlayerData
  //   public int maxHealth;
 }
 
+// summary:
+// This class holds the total score data.
 [System.Serializable]
 public class TotalScoreData
 {
     public int totalScore;
 }
 
+// summary:
+// This class holds the data for keys collected in the game.
 [System.Serializable]
 public class CollectedKeyData
 {
@@ -39,7 +52,8 @@ public class CollectedKeyData
     public bool isCollected;
 }
 
-
+// summary:
+// This class holds the data for opened doors in the game.
 [System.Serializable]
 public class OpenedDoorData
 {
@@ -47,6 +61,8 @@ public class OpenedDoorData
     public bool isOpened;
 }
 
+// summary:
+// This class holds the data for treasure chests in the game.
 [System.Serializable]
 public class TreasureChestData
 {
@@ -54,6 +70,8 @@ public class TreasureChestData
     public bool isOpened;
 }
 
+// summary:
+// This class holds the data for items collected in the game world.
 [System.Serializable]
 public class CollectedItemData
 {
@@ -61,6 +79,8 @@ public class CollectedItemData
     public bool isCollected;
 }
 
+// summary:
+// This class holds the data for food items collected in the game world.
 [System.Serializable]
 public class CollectedFoodData
 {
@@ -68,6 +88,8 @@ public class CollectedFoodData
     public bool isCollected;
 }
 
+// summary:
+// This class holds the inventory data, including collected keys, items, opened doors, and food.
 [System.Serializable]
 public class InventoryData
 {

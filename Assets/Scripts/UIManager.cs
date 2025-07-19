@@ -8,44 +8,51 @@ using System.Linq;
 
 public class UIManager : MonoBehaviour
 {
-    // Singleton Pattern - Es gibt nur einen UIManager im ganzen Spiel
+    // Singleton Pattern - only one instance of UIManager
     public static UIManager Instance;
 
     [Header("UI Elemente")]
+    // summary:
+    // UI element references for the game UI
     public TextMeshProUGUI interactionText;      // Text: "[E] xy aufheben"
-    public TextMeshProUGUI scoreTextUpperPanel;  // Text: "Punkte: xy"
-    public TextMeshProUGUI scoreTextInventory;   // Text: "Punkte: xy" im Inventory
+    public TextMeshProUGUI scoreTextUpperPanel;  // Text:  Punktestand im Upper Panel
+    public TextMeshProUGUI scoreTextInventory;   // Text:  Punktestand im Inventory
     public TextMeshProUGUI messageText;          // Text: "xy eigesammelt!"
     public TextMeshProUGUI keyCountText;         // Text: "Schlüssel: 3"
     public TextMeshProUGUI itemCountText;        // Text: "Gegenstände: 7"
 
 
     [Header("Schlüssel Bilder Upper Panel")]
-    public GameObject silverKeyUpperObject;            // Bild für Silber-Schlüssel  
-    public GameObject goldKeyUpperObject;              // Bild für Gold-Schlüssel
-    public GameObject masterKeyUpperObject;            // Bild für Master-Schlüssel
+    // summary:
+    // GameObjects for key images in the upper panel
+    public GameObject silverKeyUpperObject;              
+    public GameObject goldKeyUpperObject;              
+    public GameObject masterKeyUpperObject;            
 
 
     [Header("Bilder Inventory Panel")]
-    public GameObject silverKeyInventory;            // Bild für Silber-Schlüssel  
-    public GameObject goldKeyInventory;              // Bild für Gold-Schlüssel
-    public GameObject masterKeyInventory;            // Bild für Master-Schlüssel
+    // summary:
+    // GameObjects for key images in the inventory panel
+    public GameObject silverKeyInventory;             
+    public GameObject goldKeyInventory;              
+    public GameObject masterKeyInventory;            
 
     [Header("Einstellungen")]
-    public float messageDuration = 3f;           // Wie lange Nachrichten angezeigt werden (3 Sekunden)
+    // summary:
+    // Settings for the UI
+    public float messageDuration = 3f;  // Wie lange Nachrichten angezeigt werden (3 Sekunden)
 
     public GameObject Inventory;
     public GameObject ItemPrefab;  // Prefab für Items im Inventar
     public GameObject FoodInventoryParent;  // Parent-Objekt für Essen im Inventar
 
     // Private Variablen
-    /*private int currentScore = 0;  */              // Aktuelle Punkte
-    private Coroutine messageCoroutine;          // Für zeitgesteuerte Nachrichten
+    private Coroutine messageCoroutine; // Für zeitgesteuerte Nachrichten
 
 
     void Awake()
     {
-        // Singleton Setup - Es gibt nur einen UIManager
+        // Singleton Setup - to ensure only one UIManager exists
         if (Instance == null)
         {
             Instance = this;
@@ -57,32 +64,43 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    // summary:
+    // Initialize UI elements when the game starts
+    // This is called once at the start of the game
     void Start()
     {
         ResetUI();
     }
 
-    // NEU: Verstecke alle Schlüssel-Bilder
+    // summary:
+    // This method hides all key images in the upper panel
+    // This is called when the inventory is closed or reset
     public void HideAllKeyUpperObjects()
     {
-        // Methode 2: Über einzelne Referenzen
         if (silverKeyUpperObject != null) silverKeyUpperObject.SetActive(false);
         if (goldKeyUpperObject != null) goldKeyUpperObject.SetActive(false);
         if (masterKeyUpperObject != null) masterKeyUpperObject.SetActive(false);
     }
 
+    // summary:
+    // This method hides all key images in the inventory
+    // This is called when the inventory is closed or reset
     public void HideAllKeysInventory()
-    {   // Methode 2: Über einzelne Referenzen
+    {   
         if (silverKeyInventory != null) silverKeyInventory.SetActive(false);
         if (goldKeyInventory != null) goldKeyInventory.SetActive(false);
         if (masterKeyInventory != null) masterKeyInventory.SetActive(false);
     }
 
+    // summary:
+    // Update is called once per frame
+    // This method checks for user input to toggle the inventory visibility
     private void Update()
     {
-        if(Input.GetKeyDown(KeyCode.I))
+        // Check if the player presses the "I" key to toggle inventory visibility
+        // If Inventory GameObject is not assigned, log a warning
+        if (Input.GetKeyDown(KeyCode.I))
         {
-            // Toggle Inventory Sichtbarkeit
             if (Inventory != null)
             {
                 Inventory.SetActive(!Inventory.activeSelf);
@@ -95,7 +113,10 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    // Hauptfunktion - Zeige/Verstecke Schlüssel-Bilder basierend auf Inventar
+    // summary:
+    // Update the key display in the UI based on the provided list of keys
+    // This method is called when the player collects or uses keys
+    // It hides all key images first, then shows only the keys that are currently collected
     public void UpdateKeyDisplay(List<KeyType> keys)
     {
         Debug.Log($"=== UpdateKeyDisplay aufgerufen ===");
@@ -112,6 +133,10 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    // summary:
+    // Update the food display in the inventory UI
+    // This method is called when the player collects food items
+    // It clears the previous food items and instantiates new ones based on the provided list
     public void UpdateFoodDisplay(List<string> food)
     {
         // 1. Alle bisherigen Food-Objekte im Parent löschen
@@ -124,12 +149,13 @@ public class UIManager : MonoBehaviour
         foreach (var item in food)
         {
             GameObject newItem = Instantiate(ItemPrefab, FoodInventoryParent.transform);
-            // Optional: Passe das Aussehen/Text des Prefabs an, z.B. Name oder Icon
-            // Beispiel: newItem.GetComponentInChildren<TextMeshProUGUI>().text = item.ToString();
         }
     }
 
-    // Zeige das Bild für einen bestimmten Schlüssel-Typ
+    // summary:
+    // Show the image for a specific key type in the upper panel and inventory
+    // This method is called when the player collects a key
+    // It activates the corresponding GameObject for the key image
     public void ShowKeyImage(KeyType keyType)
     {
         switch (keyType)
@@ -139,7 +165,7 @@ public class UIManager : MonoBehaviour
                 if (silverKeyUpperObject && silverKeyInventory != null)
                 {
                     silverKeyUpperObject.SetActive(true);
-                    silverKeyInventory.SetActive(true);  // NEU: Silber-Schlüssel auch im Inventory anzeigen
+                    silverKeyInventory.SetActive(true);  
                     Debug.Log("Silber-Schlüssel Bild angezeigt");
                 }
                 break;
@@ -148,7 +174,7 @@ public class UIManager : MonoBehaviour
                 if (goldKeyUpperObject && goldKeyInventory != null)
                 {
                     goldKeyUpperObject.SetActive(true);
-                    goldKeyInventory.SetActive(true);  // NEU: Gold-Schlüssel auch im Inventory anzeigen
+                    goldKeyInventory.SetActive(true);  
                     Debug.Log("Gold-Schlüssel Bild angezeigt");
                 }
                 break;
@@ -157,14 +183,17 @@ public class UIManager : MonoBehaviour
                 if (masterKeyUpperObject && masterKeyInventory != null)
                 {
                     masterKeyUpperObject.SetActive(true);
-                    masterKeyInventory.SetActive(true);  // NEU: Master-Schlüssel auch im Inventory anzeigen
+                    masterKeyInventory.SetActive(true);  
                     Debug.Log("Master-Schlüssel Bild angezeigt");
                 }
                 break;
         }
     }
 
-    // Verstecke das Bild für einen bestimmten Schlüssel-Typ
+    // summary:
+    // Hide the image for a specific key type in the upper panel and inventory
+    // This method is called when the player uses a key or it is no longer needed
+    // It deactivates the corresponding GameObject for the key image
     public void HideKeyImage(KeyType keyType)
     {
         switch (keyType)
@@ -174,7 +203,7 @@ public class UIManager : MonoBehaviour
                 if (silverKeyUpperObject && silverKeyInventory != null)
                 {
                     silverKeyUpperObject.SetActive(false);
-                    silverKeyInventory.SetActive(false);  // NEU: Silber-Schlüssel auch im Inventory verstecken
+                    silverKeyInventory.SetActive(false);  
                     Debug.Log("Silber-Schlüssel Bild versteckt");
                 }
                 break;
@@ -183,7 +212,7 @@ public class UIManager : MonoBehaviour
                 if (goldKeyUpperObject && goldKeyInventory != null)
                 {
                     goldKeyUpperObject.SetActive(false);
-                    goldKeyInventory.SetActive(false);  // NEU: Gold-Schlüssel auch im Inventory verstecken
+                    goldKeyInventory.SetActive(false);  
                     Debug.Log("Gold-Schlüssel Bild versteckt");
                 }
                 break;
@@ -192,34 +221,50 @@ public class UIManager : MonoBehaviour
                 if (masterKeyUpperObject && masterKeyInventory != null)
                 {
                     masterKeyUpperObject.SetActive(false);
-                    masterKeyInventory.SetActive(false);  // NEU: Master-Schlüssel auch im Inventory verstecken
+                    masterKeyInventory.SetActive(false);  
                     Debug.Log("Master-Schlüssel Bild versteckt");
                 }
                 break;
         }
     }
 
-    // INTERAKTIONS-TEXT (zeigt "[E]...")
+    // summary:
+    // Show an interaction prompt with the specified text
+    // This method is called when the player can interact with an object
+    // It sets the interaction text and makes it visible
     public void ShowInteractionPrompt(string text)
     {
         interactionText.text = text;           // Setze den Text
         interactionText.gameObject.SetActive(true);  // Mache sichtbar
     }
 
+    // summary:
+    // Hide the interaction prompt text
+    // This method is called when the player can no longer interact with an object
+    // It deactivates the interaction text GameObject
+    // This is useful to clear the prompt when the player moves away from the interactable object
+    // or when the interaction is completed
     public void HideInteractionPrompt()
     {
         interactionText.gameObject.SetActive(false);  // Verstecke Text
     }
 
     // PUNKTE-SYSTEM
+    // summary:
+    // Update the score display in the UI
+    // This method is called when the player's score changes
+    // It updates the score text in both the upper panel and the inventory
     public void UpdateScore()
     {
         var currentScore = SaveSystem.Instance.currentSaveData.scoreData;
-        scoreTextUpperPanel.text = currentScore.ToString();  // "Punktestand" im Upper Panel
-        scoreTextInventory.text = currentScore.ToString();  // "Punktestand" im Inventory
+        scoreTextUpperPanel.text = currentScore.ToString();  
+        scoreTextInventory.text = currentScore.ToString();  
     }
 
     // NACHRICHTEN-SYSTEM (temporäre Meldungen)
+    // summary:
+    // Show a message in the UI for a short duration
+    // This method is called to display temporary messages like "Item collected!"
     public void ShowMessage(string message)
     {
         
@@ -238,38 +283,56 @@ public class UIManager : MonoBehaviour
         messageCoroutine = StartCoroutine(HideMessageAfterDelay());
     }
 
-    // Verstecke Nachricht nach bestimmter Zeit
+    // summary:
+    // Coroutine to hide the message after a delay
+    // This is used to automatically hide the message after a specified duration
     private IEnumerator HideMessageAfterDelay()
     {
         yield return new WaitForSeconds(messageDuration);  // Warte 3 Sekunden
         HideMessage();  // Verstecke Nachricht
     }
 
+    // summary:
+    // Hide the message text in the UI
+    // This method is called to clear the message from the UI
     public void HideMessage()
     {
         messageText.gameObject.SetActive(false);  // Verstecke Nachricht
     }
 
+    // summary:
+    // Hide the interaction text in the UI
+    // This method is called to clear the interaction prompt when it's no longer needed
+    // This is useful to clear the prompt when the player moves away from the interactable object
+    // or when the interaction is completed
     public void HideInteractionText()
     { 
         interactionText.gameObject.SetActive(false);  // Verstecke Interaktionstext
     }
 
-    // GEGENSTÄNDE-ANZEIGE  
+    // GEGENSTÄNDE-ANZEIGE
+    // summary:
+    // Update the item count display in the UI
+    // This method is called to update the number of items collected
+    // It sets the item count text to show the current count
+    // If no count is provided, it defaults to 0
     public void UpdateItemCount(int count = 0)
     {
         itemCountText.text = $"Gegenstände: {count}";  
     }
 
+    // summary:
+    // Reset the UI to its initial state
+    // This method is called to clear all UI elements and reset them to their default values
+    // It updates the score, item count, hides messages, and clears key images
+    // This is useful when starting a new game or resetting the current game state
+    // It ensures that the UI is in a clean state before the player starts interacting with the game
     public void ResetUI()
     {
         UpdateScore();
         UpdateItemCount();
         HideMessage();
-        HideAllKeyUpperObjects();  // Alle Schlüssel-Bilder im Upper Panel verstecken
-        HideAllKeysInventory();  // Alle Schlüssel-Bilder im Inventory verstecken
-        //UpdateFoodDisplay( SaveSystem.Instance.currentSaveData.inventoryData.collectedFood.Where(f => f.isCollected)
-        //                .Select(f => f.foodName)
-        //                .ToList() );  // Leere Food-Anzeige
+        HideAllKeyUpperObjects();  
+        HideAllKeysInventory();  
     }
 }

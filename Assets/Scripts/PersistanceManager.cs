@@ -2,11 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// summary:
+// This script manages the persistence of game objects across scene loads.
+// It ensures that the game object this script is attached to is not destroyed when loading a new scene.
 public class PersistanceManager : MonoBehaviour
 {
     private static PersistanceManager instance;
 
-    // Start is called before the first frame update
     void Start()
     {
         if (instance == null)

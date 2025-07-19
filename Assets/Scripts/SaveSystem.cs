@@ -4,6 +4,13 @@ using System.Linq;
 using System;
 using UnityEngine;
 
+// summary:
+// This script manages the saving and loading of game data.
+// It handles player data, treasure chests, collected items, keys, food, score, and inventory.
+// It provides methods to save the game state to a JSON file and load it back.
+
+// summary:
+// This class manages the saving and loading of game data.
 public class SaveSystem : MonoBehaviour
 {
     public static SaveSystem Instance;
@@ -28,6 +35,9 @@ public class SaveSystem : MonoBehaviour
         }
     }
 
+    // summary:
+    // This method is called when the script instance is being loaded
+    // It loads the game data if a save file exists, otherwise initializes a new save data structure.
     private void Start()
     {
         LoadGame();
@@ -35,6 +45,9 @@ public class SaveSystem : MonoBehaviour
         StartCoroutine(UpdateUIAfterLoad());
     }
 
+    // summary:
+    // This method is called when the game is saved
+    // It saves the current game state to a JSON file.
     private System.Collections.IEnumerator UpdateUIAfterLoad()
     {
         // Warte einen Frame, damit alle Manager initialisiert sind
@@ -52,6 +65,10 @@ public class SaveSystem : MonoBehaviour
         }
     }
 
+    // summary:
+    // This method initializes the save data structure with default values.
+    // It creates a new GameSaveData object with empty arrays for chests, collected items, keys, food, door states, and an empty inventory.
+    // It also initializes the player data with default position and rotation.
     void InitializeSaveData()
     {
         currentSaveData = new GameSaveData
@@ -70,6 +87,9 @@ public class SaveSystem : MonoBehaviour
         currentSaveData.inventoryData.collectedFood = new CollectedFoodData[0];
     }
 
+    // summary:
+    // This method saves the current game state to a JSON file.
+    // It serializes the currentSaveData object to JSON format and writes it to the savePath.
     public void SaveGame()
     {
         try
@@ -90,6 +110,8 @@ public class SaveSystem : MonoBehaviour
         }
     }
 
+    // summary:
+    // This method loads the game state from a JSON file.
     public bool LoadGame()
     {
         try
@@ -144,6 +166,8 @@ public class SaveSystem : MonoBehaviour
         }
     }
 
+    // summary:
+    // This method saves the player's position and rotation to the currentSaveData object.
     void SavePlayerData()
     {
         GameObject player = GameObject.FindGameObjectWithTag("Player");
@@ -157,6 +181,8 @@ public class SaveSystem : MonoBehaviour
         }
     }
 
+    // summary:
+    // This method loads the player's position and rotation from the currentSaveData object.
     void LoadPlayerData()
     {
         GameObject player = GameObject.FindGameObjectWithTag("Player");
@@ -179,6 +205,8 @@ public class SaveSystem : MonoBehaviour
     }
 
     // Schlüssel-Funktionen
+    // summary:
+    // This method marks a key as collected in the world and adds it to the inventory if not already present.
     public void MarkKeyAsCollected(string keyName)
     {
         var existingKey = currentSaveData.collectedInWorldKeys.FirstOrDefault(k => k.keyName == keyName);
@@ -201,7 +229,6 @@ public class SaveSystem : MonoBehaviour
             keyName = keyName,
             isCollected = true
         };
-        // WICHTIG: Zum Inventar hinzufügen (verwende Any() statt Contains() für bessere Kompatibilität)
         if (!currentSaveData.inventoryData.collectedKeys.Any(k => k.keyName == keyName && k.isCollected))
         {
             currentSaveData.inventoryData.collectedKeys = currentSaveData.inventoryData.collectedKeys.Append(itemKey).ToArray();
@@ -212,6 +239,8 @@ public class SaveSystem : MonoBehaviour
     }
 
     // Tür-Funktionen
+    // summary:
+    // This method marks a door as opened and updates the key state in the inventory.
     public void MarkDoorAsOpened(string doorName, KeyType keyType)
     {
         var existingDoor = currentSaveData.openedDoor.FirstOrDefault(d => d.doorName == doorName);
@@ -239,6 +268,8 @@ public class SaveSystem : MonoBehaviour
     }
 
     // Truhen-Funktionen
+    // summary:
+    // This method marks a treasure chest as opened and updates the chest state in the save data.
     public void MarkChestAsOpened(string chestName)
     {
         var existingChest = currentSaveData.chestData.FirstOrDefault(c => c.chestId == chestName);
@@ -257,35 +288,9 @@ public class SaveSystem : MonoBehaviour
         SaveGame();
     }
 
-    // Gegenstände-Funktionen
-    //public void MarkItemAsCollected(string itemName)
-    //{
-    //    var existingItem = currentSaveData.collectedInWorldItems.FirstOrDefault(i => i.itemName == itemName);
-    //    if (existingItem == null)
-    //    {
-    //        existingItem = new CollectedItemData
-    //        {
-    //            itemName = itemName,
-    //            isCollected = true
-    //        };
-    //        currentSaveData.collectedInWorldItems = currentSaveData.collectedInWorldItems.Append(existingItem).ToArray();
-    //    }
-    //    else
-    //    {
-    //        existingItem.isCollected = true;
-    //    }
-
-    //    // WICHTIG: Zum Inventar hinzufügen (verwende Any() statt Contains() für bessere Kompatibilität)
-    //    if (!currentSaveData.inventoryData.collectedItems.Any(i => i.itemName == itemName && i.isCollected))
-    //    {
-    //        currentSaveData.inventoryData.collectedItems = currentSaveData.inventoryData.collectedItems.Append(existingItem).ToArray();
-    //        Debug.Log($"Item '{itemName}' zum Inventar hinzugefügt. Inventar-Items: {currentSaveData.inventoryData.collectedItems.Length}");
-    //    }
-
-    //    SaveGame();
-    //}
-
     // Food-Funktionen
+    // summary:
+    // This method marks food as collected in the world and adds it to the inventory if not already present.
     public void MarkFoodAsCollected(string foodName)
     {
         var existingFood = currentSaveData.collectedFoodInWorld.FirstOrDefault(f => f.foodName == foodName);
@@ -307,7 +312,6 @@ public class SaveSystem : MonoBehaviour
             foodName = foodName,
             isCollected = true
         };
-        // WICHTIG: Zum Inventar hinzufügen (verwende Any() statt Contains() für bessere Kompatibilität)
         if (!currentSaveData.inventoryData.collectedFood.Any(f => f.foodName == foodName && f.isCollected))
         {
             currentSaveData.inventoryData.collectedFood = currentSaveData.inventoryData.collectedFood.Append(itemFood).ToArray();
@@ -317,30 +321,26 @@ public class SaveSystem : MonoBehaviour
         SaveGame();
     }
 
+    // summary:
+    // This method adds a score to the current save data and updates the UI.
     public void AddScore(int score)
     {         
         currentSaveData.scoreData += score;
         UIManager.Instance.UpdateScore();  // UI aktualisieren
         SaveGame();
     }
-    //public void MarkItemAsUsed(string itemName)
-    //{
-    //    var existingItem = currentSaveData.inventoryData.collectedItems.FirstOrDefault(i => i.itemName == itemName);
-    //    if (existingItem == null)
-    //    {
-    //        Debug.LogWarning("Item nicht im Inventar gefunden: " + itemName);
-    //        return;
-    //    }
-    //    existingItem.isCollected = true;
-    //    SaveGame();
-    //}
 
     // Getter für aktuelle Daten
+    // summary:
+    // This method returns the current save data.
     public GameSaveData GetCurrentSaveData()
     {
         return currentSaveData;
     }
 
+    // summary:
+    // This method deletes the save file if it exists and initializes a new save data structure.
+    // It also logs a message indicating that the save file has been deleted.
     public void DeleteSaveFile()
     {
         if (File.Exists(savePath))
@@ -351,12 +351,17 @@ public class SaveSystem : MonoBehaviour
         }
     }
 
+    // summary:
+    // This method checks if a save file exists at the specified save path.
+    // It returns true if the file exists, otherwise false.
     public bool SaveFileExists()
     {
         return File.Exists(savePath);
     }
 
     // Debug-Methode für Speicherdaten
+    // summary:
+    // This method logs the current save data to the console for debugging purposes.
     public void DebugSaveData()
     {
         Debug.Log("=== SPEICHERDATEN DEBUG ===");

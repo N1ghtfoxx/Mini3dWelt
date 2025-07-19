@@ -1,5 +1,10 @@
 using UnityEngine;
 
+// summary:
+// This script manages a day-night cycle in Unity, controlling the sun and moon's position,
+// lighting, ambient light, fog, and skybox colors based on the time of day.
+// It allows for customization of day length, celestial object properties, and various visual effects.
+// It also includes methods to set specific times of day and toggle lanterns based on the time state.
 public class DayNightCycle : MonoBehaviour
 {
     [Header("Time Settings")]
@@ -59,6 +64,10 @@ public class DayNightCycle : MonoBehaviour
 
     public static object Instance { get; internal set; }
 
+    // summary:
+    // Initializes the day-night cycle settings and starts the cycle.
+    // This method sets the time speed based on the day length, updates the initial lighting,
+    // and configures the fog and skybox if enabled.
     void Start()
     {
         timeSpeed = 1f / (dayLengthInMinutes * 60f);
@@ -74,6 +83,11 @@ public class DayNightCycle : MonoBehaviour
         }
     }
 
+    // summary:
+    // Updates the day-night cycle each frame.
+    // This method increments the current time based on the time speed,
+    // updates the lighting, checks for day/night transitions, and toggles lanterns accordingly.
+    // It also logs the current time in debug mode.
     void Update()
     {
         if (!timePaused)
@@ -97,7 +111,12 @@ public class DayNightCycle : MonoBehaviour
         }
     }
 
-
+    // summary:
+    // Updates the lighting based on the current time.
+    // This method calculates the sun and moon angles, adjusts their rotations,
+    // sets the intensity and color of the sun and moon lights, updates ambient light,
+    // fog settings, and skybox properties if enabled.
+    // It also determines whether it is day or night based on the sun's position.
     void UpdateLighting()
     {
         float sunAngle = currentTime * 360f - 90f;
@@ -137,6 +156,9 @@ public class DayNightCycle : MonoBehaviour
         if (adjustSkybox && skyboxMaterial != null) UpdateSkybox();
     }
 
+    // summary:
+    // Calculates the color of the sun based on the current time.
+    // This method interpolates between morning, noon, and evening colors based on the time of day.
     Color CalculateSunColor(float time)
     {
         if (time < 0.3f)
@@ -159,6 +181,8 @@ public class DayNightCycle : MonoBehaviour
         }
     }
 
+    // summary:
+    // Updates the ambient light color based on the current time.
     void UpdateAmbientLight()
     {
         float dayFactor = 0f;
@@ -174,6 +198,8 @@ public class DayNightCycle : MonoBehaviour
         RenderSettings.ambientLight = ambientColor * ambientIntensity;
     }
 
+    // summary:
+    // Updates the fog settings based on the current time.
     void UpdateFog()
     {
         float dayFactor = 0f;
@@ -189,6 +215,8 @@ public class DayNightCycle : MonoBehaviour
         RenderSettings.fogColor = fogColor;
     }
 
+    // summary:
+    // Updates the skybox material properties based on the current time.
     void UpdateSkybox()
     {
         Color targetColor = CalculateSkyColor(currentTime);
@@ -212,6 +240,9 @@ public class DayNightCycle : MonoBehaviour
         }
     }
 
+    // summary:
+    // Calculates the sky color based on the current time.
+    // This method interpolates between different sky colors for night, morning, noon, evening, and night again.
     Color CalculateSkyColor(float time)
     {
         if (time < 0.2f)
@@ -232,6 +263,10 @@ public class DayNightCycle : MonoBehaviour
             return skyColorNight;
     }
 
+    // summary:
+    // Calculates the sky intensity based on the current time.
+    // This method uses an animation curve to determine the intensity during different times of day.
+    // It returns a value that blends between day and night intensities.
     float CalculateSkyIntensity(float time)
     {
         float dayFactor = 0f;
@@ -246,6 +281,8 @@ public class DayNightCycle : MonoBehaviour
         return Mathf.Lerp(skyIntensityNight, skyIntensityDay, dayFactor);
     }
 
+    // summary:
+    // Returns a human-readable string representation of the current time in HH:MM format.
     public string GetReadableTime()
     {
         float hours = currentTime * 24f;
@@ -254,34 +291,42 @@ public class DayNightCycle : MonoBehaviour
         return $"{hour:D2}:{minutes:D2}";
     }
 
+    // summary:
+    // Sets the current time of day based on a normalized value between 0 and 1.
+    // This method clamps the new time value to ensure it stays within the valid range.
     public void SetTime(float newTime)
     {
         currentTime = Mathf.Clamp01(newTime);
         UpdateLighting();
     }
 
+    // summary:
+    // Sets the current time of day based on hour and minute values.
     public void SetTime(int hour, int minute)
     {
         float time = (hour + minute / 60f) / 24f;
         SetTime(time);
     }
 
-    public float GetCurrentTime() => currentTime;
-    public bool IsDay() => currentTime > 0.2f && currentTime < 0.8f;
-    public bool IsNight() => !IsDay();
+    public float GetCurrentTime() => currentTime; // Returns the current time as a normalized value (0 to 1).
+    public bool IsDay() => currentTime > 0.2f && currentTime < 0.8f; // Returns true if it is daytime (between 20% and 80% of the day cycle).
+    public bool IsNight() => !IsDay(); // Returns true if it is nighttime (not daytime).
 
     [ContextMenu("Set Sunrise")]
-    void SetSunrise() => SetTime(0.25f);
+    void SetSunrise() => SetTime(0.25f);    // Sets the time to sunrise (25% of the day cycle).
 
     [ContextMenu("Set Noon")]
-    void SetNoon() => SetTime(0.5f);
+    void SetNoon() => SetTime(0.5f);    // Sets the time to noon (50% of the day cycle).
 
     [ContextMenu("Set Sunset")]
-    void SetSunset() => SetTime(0.75f);
+    void SetSunset() => SetTime(0.75f); // Sets the time to sunset (75% of the day cycle).
 
     [ContextMenu("Set Midnight")]
-    void SetMidnight() => SetTime(0f);
+    void SetMidnight() => SetTime(0f);  // Sets the time to midnight (0% of the day cycle).
 
+    // summary:
+    // Toggles all lanterns in the scene based on the specified state.
+    // This method finds all Lantern objects in the scene and sets their state to either on or off.
     void ToggleAllLanterns(bool turnOn)
     {
         Lantern[] allLanterns = Object.FindObjectsByType<Lantern>(FindObjectsSortMode.None);
